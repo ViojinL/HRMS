@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block title %}提交请假申请 - HRMS{% endblock %}
+{% block page_title %}提交请假申请{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto bg-white rounded-lg shadow p-8">
+    <div class="mb-6 pb-4 border-b border-gray-100">
+        <h3 class="text-lg font-bold text-gray-700">新申请</h3>
+        <p class="text-sm text-gray-500">请填写详细请假信息，带 * 为必填项</p>
+    </div>
+
+    <form method="post" class="space-y-6">
+        {% csrf_token %}
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- 类型 -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">请假类型 *</label>
+                {{ form.leave_type }}
+                {% if form.leave_type.errors %}
+                <p class="text-red-500 text-xs mt-1">{{ form.leave_type.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- 附件（暂未实现上传，仅文本） -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">附件链接</label>
+                {{ form.attachment_url }}
+            </div>
+
+            <!-- 开始时间 -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">开始时间 *</label>
+                {{ form.start_time }}
+                {% if form.start_time.errors %}
+                <p class="text-red-500 text-xs mt-1">{{ form.start_time.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- 结束时间 -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">结束时间 *</label>
+                {{ form.end_time }}
+                {% if form.end_time.errors %}
+                <p class="text-red-500 text-xs mt-1">{{ form.end_time.errors.0 }}</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- 事由 -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">请假事由 *</label>
+            {{ form.reason }}
+            {% if form.reason.errors %}
+            <p class="text-red-500 text-xs mt-1">{{ form.reason.errors.0 }}</p>
+            {% endif %}
+            <p class="text-xs text-gray-400 mt-1">请详细描述请假原因，以便审批。</p>
+        </div>
+
+        {% if form.non_field_errors %}
+        <div class="p-3 bg-red-50 text-red-700 rounded text-sm">
+            {{ form.non_field_errors.0 }}
+        </div>
+        {% endif %}
+
+        <div class="pt-4 flex items-center justify-end gap-4 border-t border-gray-100">
+            <a href="{% url 'leave:list' %}"
+                class="px-5 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">取消</a>
+            <button type="submit"
+                class="px-5 py-2 bg-primary text-white rounded-lg hover:bg-blue-600 shadow-md transition-all flex items-center gap-2">
+                <i class="fa-solid fa-paper-plane"></i> 提交申请
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

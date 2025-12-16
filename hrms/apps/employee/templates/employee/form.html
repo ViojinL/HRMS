@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if form.instance.pk %}编辑员工{% else %}入职办理{% endif %} - HRMS{% endblock %}
+{% block page_title %}{% if form.instance.pk %}编辑员工档案{% else %}新员工入职办理{% endif %}{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+        <div class="px-8 py-6 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
+            <div>
+                <h3 class="font-bold text-gray-800 text-lg">
+                    {% if form.instance.pk %}编辑档案: {{ form.instance.emp_name }}{% else %}填写基本信息{% endif %}
+                </h3>
+                <p class="text-sm text-gray-500 mt-1">带 * 号为必填项</p>
+            </div>
+            {% if not form.instance.pk %}
+            <div class="px-3 py-1 bg-blue-100 text-primary text-xs font-bold rounded">Step 1/1</div>
+            {% endif %}
+        </div>
+
+        <form method="post" class="p-8 space-y-6">
+            {% csrf_token %}
+
+            {% if form.errors %}
+            <div class="bg-red-50 text-red-600 p-4 rounded-lg text-sm mb-6">
+                <p class="font-bold mb-2"><i class="fa-solid fa-circle-exclamation mr-1"></i> 请修正以下错误：</p>
+                <ul class="list-disc pl-5 space-y-1">
+                    {% for field, errors in form.errors.items %}
+                    <li>{{ field }}: {{ errors.0 }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- 姓名 -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">姓名 *</label>
+                    {{ form.emp_name }}
+                </div>
+
+                <!-- 性别 -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">性别 *</label>
+                    {{ form.gender }}
+                </div>
+
+                <!-- 身份证 -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">身份证号 *</label>
+                    {{ form.id_card }}
+                </div>
+
+                <!-- 手机 -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">手机号码 *</label>
+                    {{ form.phone }}
+                </div>
+
+                <!-- 邮箱 -->
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">电子邮箱</label>
+                    {{ form.email }}
+                </div>
+
+                <!-- 部门 -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">所属部门 *</label>
+                    {{ form.org }}
+                </div>
+
+                <!-- 岗位 -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">岗位名称 *</label>
+                    {{ form.position }}
+                </div>
+
+                <!-- 直接上级 -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">直接上级</label>
+                    {{ form.manager_emp }}
+                </div>
+
+                <!-- 入职日期 -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">入职日期 *</label>
+                    {{ form.hire_date }}
+                </div>
+
+                <!-- 雇佣类型 -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">雇佣类型 *</label>
+                    {{ form.employment_type }}
+                </div>
+
+                <!-- 状态 -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">当前状态 *</label>
+                    {{ form.emp_status }}
+                </div>
+            </div>
+
+            <div class="pt-6 border-t border-gray-100 flex items-center justify-end gap-3">
+                <a href="javascript:history.back()"
+                    class="px-5 py-2.5 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors font-medium">取消</a>
+                <button type="submit"
+                    class="px-6 py-2.5 rounded-lg bg-primary text-white hover:bg-blue-600 shadow-lg shadow-blue-500/30 transition-all font-medium">
+                    {% if form.instance.pk %}保存修改{% else %}确认入职{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

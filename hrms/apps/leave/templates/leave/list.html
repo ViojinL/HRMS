@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block title %}请假中心 - HRMS{% endblock %}
+{% block page_title %}请假管理中心{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-lg shadow p-6">
+    <div class="flex justify-between items-center mb-6">
+        <h3 class="text-lg font-bold text-gray-700">我的请假记录</h3>
+        <a href="{% url 'leave:apply' %}"
+            class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors flex items-center gap-2">
+            <i class="fa-solid fa-plus"></i> 申请请假
+        </a>
+    </div>
+
+    <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr class="text-gray-500 border-b border-gray-100">
+                    <th class="py-3 px-4 font-medium">申请编号</th>
+                    <th class="py-3 px-4 font-medium">类型</th>
+                    <th class="py-3 px-4 font-medium">提交时间</th>
+                    <th class="py-3 px-4 font-medium">天数</th>
+                    <th class="py-3 px-4 font-medium">状态</th>
+                    <th class="py-3 px-4 font-medium">操作</th>
+                </tr>
+            </thead>
+            <tbody class="text-sm text-gray-700">
+                {% for leave in leaves %}
+                <tr class="hover:bg-gray-50 border-b border-gray-50 last:border-0 transition-colors">
+                    <td class="py-3 px-4 text-gray-400 font-mono">{{ leave.id|slice:":8" }}...</td>
+                    <td class="py-3 px-4">
+                        <span class="inline-block px-2 py-1 rounded bg-gray-100 text-xs">{{ leave.get_leave_type_display
+                            }}</span>
+                    </td>
+                    <td class="py-3 px-4">{{ leave.apply_time|date:"Y-m-d H:i" }}</td>
+                    <td class="py-3 px-4 font-semibold">{{ leave.total_days }} 天</td>
+                    <td class="py-3 px-4">
+                        {% if leave.apply_status == 'approved' %}
+                        <span class="text-success flex items-center gap-1"><i class="fa-solid fa-check"></i> 已批准</span>
+                        {% elif leave.apply_status == 'pending' %}
+                        <span class="text-warning flex items-center gap-1"><i class="fa-solid fa-hourglass"></i>
+                            待审批</span>
+                        {% elif leave.apply_status == 'rejected' %}
+                        <span class="text-danger flex items-center gap-1"><i class="fa-solid fa-xmark"></i> 已拒绝</span>
+                        {% else %}
+                        <span class="text-gray-400">{{ leave.get_apply_status_display }}</span>
+                        {% endif %}
+                    </td>
+                    <td class="py-3 px-4">
+                        <button class="text-primary hover:underline">查看</button>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="py-8 text-center text-gray-400">
+                        <div class="flex flex-col items-center gap-2">
+                            <i class="fa-regular fa-folder-open text-3xl"></i>
+                            <span>暂无申请记录</span>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

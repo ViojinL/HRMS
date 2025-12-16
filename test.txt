@@ -1,0 +1,21 @@
+=== 系统管理员 ===
+Admin: admin / password123
+
+=== 高层管理 (可视全公司/部门) ===
+CEO: ceo / password123 (张总)
+HR总监: hr_dir / password123 (李人资)
+技术总监: tech_dir / password123 (王技术)
+
+=== 团队负责人 (可视下属) ===
+前端组长: fe_lead / password123 (赵前端)
+后端组长: be_lead / password123 (孙后端)
+
+=== 普通员工 (仅视自己) ===
+前端开发: dev001 / password123 (周杰伦)
+后端开发: dev002 / password123 (林俊杰)
+后端开发: dev003 / password123 (陶喆)
+
+=== 其他测试账号 ===
+HR专员: hr_user / password123
+部门经理: manager_user / password123
+普通员工: emp_user / password123

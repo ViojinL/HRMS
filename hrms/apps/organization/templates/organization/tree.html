@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block title %}组织架构 - HRMS{% endblock %}
+{% block page_title %}企业组织架构图{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-lg shadow p-8 min-h-[600px] overflow-x-auto">
+    <div class="flex flex-col items-center">
+        <!-- 树形结构渲染 -->
+        {% with template_name="organization/tree_node.html" %}
+        <div class="flex flex-col gap-8">
+            {% for node in org_tree %}
+            {% include template_name with node=node %}
+            {% endfor %}
+        </div>
+        {% endwith %}
+    </div>
+</div>
+{% endblock %}

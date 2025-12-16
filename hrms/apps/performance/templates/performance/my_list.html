@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block title %}我的绩效 - HRMS{% endblock %}
+{% block page_title %}我的绩效考核{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-lg shadow p-6">
+    <div class="mb-4">
+        <h3 class="text-lg font-bold text-gray-700">自评任务</h3>
+    </div>
+
+    <div class="overflow-x-auto">
+        <table class="w-full text-left">
+            <thead>
+                <tr class="text-gray-500 border-b border-gray-100">
+                    <th class="py-3 px-4">考核周期</th>
+                    <th class="py-3 px-4">状态</th>
+                    <th class="py-3 px-4">自评得分</th>
+                    <th class="py-3 px-4">最终得分</th>
+                    <th class="py-3 px-4">操作</th>
+                </tr>
+            </thead>
+            <tbody class="text-sm text-gray-700">
+                {% for eval in evaluations %}
+                <tr class="hover:bg-gray-50 border-b border-gray-50 last:border-0">
+                    <td class="py-3 px-4 font-medium">{{ eval.cycle.cycle_name }}</td>
+                    <td class="py-3 px-4">
+                        {% if eval.evaluation_status == 'self_eval' %}
+                        <span class="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs">待自评</span>
+                        {% elif eval.evaluation_status == 'manager_eval' %}
+                        <span class="bg-yellow-100 text-yellow-700 px-2 py-1 rounded text-xs">待上级评分</span>
+                        {% elif eval.evaluation_status == 'completed' %}
+                        <span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs">已完成</span>
+                        {% else %}
+                        {{ eval.get_evaluation_status_display }}
+                        {% endif %}
+                    </td>
+                    <td class="py-3 px-4">{{ eval.self_score|default:"-" }}</td>
+                    <td class="py-3 px-4 font-bold">{{ eval.final_score|default:"-" }}</td>
+                    <td class="py-3 px-4">
+                        {% if eval.evaluation_status == 'self_eval' %}
+                        <a href="{% url 'performance:do_self_eval' eval.pk %}"
+                            class="text-primary hover:underline">去自评</a>
+                        {% else %}
+                        <a href="#" class="text-gray-400">查看详情</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="py-8 text-center text-gray-400">暂无考核记录</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

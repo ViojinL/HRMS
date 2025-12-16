@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %}组织管理 - HRMS{% endblock %}
+{% block page_title %}组织管理{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-lg shadow p-6">
+    <div class="flex justify-between items-center mb-6">
+        <h3 class="font-bold text-gray-800">组织列表</h3>
+        <div class="flex gap-2">
+            <a href="{% url 'organization:tree' %}"
+                class="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 flex items-center gap-2 text-sm">
+                <i class="fa-solid fa-sitemap"></i> 树状图
+            </a>
+            <a href="{% url 'organization:add' %}"
+                class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-2 text-sm font-medium">
+                <i class="fa-solid fa-plus"></i> 新增组织
+            </a>
+        </div>
+    </div>
+
+    <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr class="bg-gray-50 text-gray-500 text-xs uppercase">
+                    <th class="py-3 px-4">编码</th>
+                    <th class="py-3 px-4">名称</th>
+                    <th class="py-3 px-4">类型</th>
+                    <th class="py-3 px-4">上级组织</th>
+                    <th class="py-3 px-4">负责人</th>
+                    <th class="py-3 px-4">状态</th>
+                    <th class="py-3 px-4 text-right">操作</th>
+                </tr>
+            </thead>
+            <tbody class="text-sm">
+                {% for org in orgs %}
+                <tr class="border-b border-gray-50 hover:bg-gray-50/50">
+                    <td class="py-3 px-4 font-mono">{{ org.org_code }}</td>
+                    <td class="py-3 px-4 font-medium">{{ org.org_name }}</td>
+                    <td class="py-3 px-4">{{ org.get_org_type_display }}</td>
+                    <td class="py-3 px-4 text-gray-500">{{ org.parent_org.org_name|default:"-" }}</td>
+                    <td class="py-3 px-4">{{ org.manager_emp.emp_name|default:"-" }}</td>
+                    <td class="py-3 px-4">
+                        {% if org.status == 'active' %}
+                        <span class="text-green-600 bg-green-50 px-2 py-0.5 rounded text-xs">生效中</span>
+                        {% else %}
+                        <span class="text-gray-500 bg-gray-100 px-2 py-0.5 rounded text-xs">失效</span>
+                        {% endif %}
+                    </td>
+                    <td class="py-3 px-4 text-right space-x-2">
+                        <a href="{% url 'organization:edit' org.pk %}" class="text-blue-600 hover:text-blue-800">编辑</a>
+                        <a href="{% url 'organization:delete' org.pk %}" class="text-red-500 hover:text-red-700">删除</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

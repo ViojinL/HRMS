@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block title %}团队考核 - HRMS{% endblock %}
+{% block page_title %}团队绩效评分{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-lg shadow p-6">
+    <div class="mb-4">
+        <h3 class="text-lg font-bold text-gray-700">待办评分</h3>
+    </div>
+
+    <div class="overflow-x-auto">
+        <table class="w-full text-left">
+            <thead>
+                <tr class="text-gray-500 border-b border-gray-100">
+                    <th class="py-3 px-4">员工姓名</th>
+                    <th class="py-3 px-4">考核周期</th>
+                    <th class="py-3 px-4">自评得分</th>
+                    <th class="py-3 px-4">管理评分</th>
+                    <th class="py-3 px-4">操作</th>
+                </tr>
+            </thead>
+            <tbody class="text-sm text-gray-700">
+                {% for eval in evaluations %}
+                <tr class="hover:bg-gray-50 border-b border-gray-50 last:border-0">
+                    <td class="py-3 px-4">
+                        <div class="flex items-center gap-2">
+                            <div
+                                class="w-8 h-8 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center font-bold text-xs">
+                                {{ eval.emp.emp_name|slice:":1" }}
+                            </div>
+                            <span class="font-medium">{{ eval.emp.emp_name }}</span>
+                        </div>
+                    </td>
+                    <td class="py-3 px-4">{{ eval.cycle.cycle_name }}</td>
+                    <td class="py-3 px-4">{{ eval.self_score|default:"-" }}</td>
+                    <td class="py-3 px-4">{{ eval.manager_score|default:"-" }}</td>
+                    <td class="py-3 px-4">
+                        {% if eval.evaluation_status == 'manager_eval' %}
+                        <a href="{% url 'performance:do_manager_eval' eval.pk %}"
+                            class="bg-primary text-white px-3 py-1 rounded text-xs hover:bg-blue-600 transition-colors">评分</a>
+                        {% else %}
+                        <span class="text-gray-400 text-xs">无需操作</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="py-8 text-center text-gray-400">暂无待办评分</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

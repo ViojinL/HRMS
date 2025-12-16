@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block title %}绩效评分 - HRMS{% endblock %}
+{% block page_title %}绩效评分{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto bg-white rounded-lg shadow p-8">
+    <div class="mb-6 border-b pb-4">
+        <h2 class="text-xl font-bold text-gray-800">{{ object.cycle.cycle_name }}</h2>
+        <p class="text-gray-500 mt-1">被考核人：{{ object.emp.emp_name }} | 部门：{{ object.emp.org.org_name }}</p>
+    </div>
+
+    <form method="post" class="space-y-6">
+        {% csrf_token %}
+
+        <!-- 自评部分 -->
+        <div class="bg-blue-50 p-4 rounded-lg border border-blue-100">
+            <h4 class="font-bold text-blue-800 mb-3">员工自评</h4>
+            {% if is_manager %}
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <span class="block text-xs text-gray-500 uppercase">自评分数</span>
+                    <span class="text-2xl font-bold text-blue-700">{{ object.self_score }}</span>
+                </div>
+                <!-- 这里可以展示自评内容详情，当前简化为分数 -->
+            </div>
+            {% else %}
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">自评分数 (0-100) *</label>
+                {{ form.self_score }}
+                <p class="text-xs text-gray-400 mt-1">请根据本周期工作表现客观打分。</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- 上级评分部分 -->
+        {% if is_manager %}
+        <div class="bg-purple-50 p-4 rounded-lg border border-purple-100">
+            <h4 class="font-bold text-purple-800 mb-3">上级评分</h4>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">管理评分 (0-100) *</label>
+                {{ form.manager_score }}
+            </div>
+            <div class="mt-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">综合评价</label>
+                {{ form.final_remark }}
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="flex justify-end pt-4">
+            <button type="submit" class="bg-primary text-white px-6 py-2 rounded-lg hover:bg-blue-600 shadow-md">
+                提交评分
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

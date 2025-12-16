@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}删除确认 - HRMS{% endblock %}
+{% block page_title %}删除确认{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto pt-10">
+    <div class="bg-white rounded-lg shadow-lg p-8 text-center">
+        <div
+            class="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+
+        <h3 class="text-xl font-bold text-gray-900 mb-2">确认删除该组织?</h3>
+        <p class="text-gray-500 mb-6">
+            您正在尝试删除 <strong>{{ object.org_name }}</strong>。<br>
+            如果该组织下包含子组织或员工，删除可能会失败或导致数据不一致。
+        </p>
+
+        <form method="post" class="flex justify-center gap-3">
+            {% csrf_token %}
+            <a href="{% url 'organization:list' %}"
+                class="px-5 py-2.5 border rounded-lg text-gray-600 hover:bg-gray-50">取消</a>
+            <button type="submit" class="px-5 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700">确认删除</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+
+{% block title %}审计日志 - HRMS{% endblock %}
+{% block page_title %}安全审计日志{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-lg shadow p-6">
+    <!-- 筛选工具栏 -->
+    <form method="get" class="flex flex-wrap gap-4 mb-6">
+        <div class="relative w-64">
+            <input type="text" name="search" value="{{ request.GET.search }}" placeholder="搜索操作人/IP/摘要..."
+                class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-primary text-sm">
+            <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-gray-400"></i>
+        </div>
+
+        <select name="module"
+            class="border border-gray-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-primary bg-white">
+            <option value="">所有模块</option>
+            <option value="系统认证" {% if request.GET.module=='系统认证' %}selected{% endif %}>系统认证</option>
+            <option value="请假管理" {% if request.GET.module=='请假管理' %}selected{% endif %}>请假管理</option>
+            <option value="绩效管理" {% if request.GET.module=='绩效管理' %}selected{% endif %}>绩效管理</option>
+            <option value="考勤管理" {% if request.GET.module=='考勤管理' %}selected{% endif %}>考勤管理</option>
+        </select>
+
+        <button type="submit"
+            class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors text-sm">
+            筛选
+        </button>
+        <a href="{% url 'audit:list' %}"
+            class="px-4 py-2 text-gray-500 hover:text-gray-700 text-sm flex items-center">重置</a>
+    </form>
+
+    <!-- 日志列表 -->
+    <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr class="text-gray-500 border-b border-gray-100 bg-gray-50/50">
+                    <th class="py-3 px-4 w-40">时间</th>
+                    <th class="py-3 px-4 w-32">操作人</th>
+                    <th class="py-3 px-4 w-32">IP地址</th>
+                    <th class="py-3 px-4 w-32">模块</th>
+                    <th class="py-3 px-4 w-24">动作</th>
+                    <th class="py-3 px-4">摘要</th>
+                </tr>
+            </thead>
+            <tbody class="text-sm text-gray-700">
+                {% for log in logs %}
+                <tr class="hover:bg-gray-50 border-b border-gray-50 last:border-0 font-mono">
+                    <td class="py-3 px-4 text-gray-500">{{ log.oper_time|date:"Y-m-d H:i:s" }}</td>
+                    <td class="py-3 px-4 font-bold">{{ log.oper_user }}</td>
+                    <td class="py-3 px-4 text-gray-500">{{ log.ip_address|default:"-" }}</td>
+                    <td class="py-3 px-4">
+                        <span class="px-2 py-0.5 rounded bg-gray-100 text-gray-600 text-xs">
+                            {{ log.table_name|default:"-" }}
+                        </span>
+                    </td>
+                    <td class="py-3 px-4">
+                        {% if log.oper_type == 'LOGIN' %}
+                        <span class="text-green-600 font-bold">LOGIN</span>
+                        {% elif log.oper_type == 'LOGOUT' %}
+                        <span class="text-orange-500 font-bold">LOGOUT</span>
+                        {% elif log.oper_type == 'DELETE' %}
+                        <span class="text-red-600 font-bold">DELETE</span>
+                        {% else %}
+                        <span class="text-blue-600">{{ log.oper_type }}</span>
+                        {% endif %}
+                    </td>
+                    <td class="py-3 px-4 text-gray-600">{{ log.summary }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="py-12 text-center text-gray-400">暂无审计记录</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 分页 -->
+    {% if is_paginated %}
+    <div class="flex justify-center mt-6 gap-2">
+        {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}"
+            class="px-3 py-1 border rounded hover:bg-gray-50 text-sm">上一页</a>
+        {% endif %}
+        <span class="px-3 py-1 text-sm text-gray-500">第 {{ page_obj.number }} 页 / {{ page_obj.paginator.num_pages }}
+            页</span>
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}"
+            class="px-3 py-1 border rounded hover:bg-gray-50 text-sm">下一页</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

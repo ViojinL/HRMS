@@ -1,0 +1,291 @@
+{% extends 'base.html' %}
+
+{% block title %}工作台 - HRMS{% endblock %}
+{% block page_title %}工作台{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- 1. 欢迎 Banner -->
+    <div
+        class="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-xl p-6 text-white shadow-lg relative overflow-hidden">
+        <div class="relative z-10 flex justify-between items-center">
+            <div>
+                <h2 class="text-2xl font-bold mb-1">{{ greeting }}，{{
+                    request.user.employee.emp_name|default:request.user.username }}</h2>
+                <p class="text-blue-100 text-sm opacity-90">今天是 {% now "Y年m月d日" %}，祝您工作愉快！</p>
+            </div>
+            {% if total_todos > 0 %}
+            <div class="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-lg border border-white/30 text-center">
+                <div class="text-2xl font-bold">{{ total_todos }}</div>
+                <div class="text-xs text-blue-100">待办事项</div>
+            </div>
+            {% endif %}
+        </div>
+        <!-- 装饰背景 -->
+        <i class="fa-solid fa-mug-hot absolute -bottom-4 right-10 text-9xl text-white/10 rotate-12"></i>
+    </div>
+
+    {% if is_new_user %}
+    <div class="bg-yellow-50 border border-yellow-200 p-4 rounded-lg text-yellow-800 flex items-center gap-3">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <span>您的账号尚未关联员工档案，请联系 HR 进行入职办理或关联操作。</span>
+    </div>
+    {% elif is_admin_dashboard %}
+    <!-- 管理员系统概览 -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- 总员工数 -->
+        <div class="bg-white p-6 rounded-lg shadow border-l-4 border-blue-500">
+            <div class="flex justify-between items-center">
+                <div>
+                    <div class="text-gray-500 text-xs uppercase font-bold tracking-wider">在职员工</div>
+                    <div class="mt-2 text-3xl font-bold text-gray-800">{{ total_employees }}</div>
+                </div>
+                <div class="w-12 h-12 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-users"></i>
+                </div>
+            </div>
+            <a href="{% url 'employee:list' %}" class="mt-4 block text-xs text-blue-600 hover:underline">管理员工 ></a>
+        </div>
+
+        <!-- 组织部门数 -->
+        <div class="bg-white p-6 rounded-lg shadow border-l-4 border-indigo-500">
+            <div class="flex justify-between items-center">
+                <div>
+                    <div class="text-gray-500 text-xs uppercase font-bold tracking-wider">组织部门</div>
+                    <div class="mt-2 text-3xl font-bold text-gray-800">{{ total_orgs }}</div>
+                </div>
+                <div
+                    class="w-12 h-12 bg-indigo-50 text-indigo-500 rounded-full flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-sitemap"></i>
+                </div>
+            </div>
+            <a href="{% url 'organization:list' %}" class="mt-4 block text-xs text-indigo-600 hover:underline">管理架构
+                ></a>
+        </div>
+
+        <!-- 活跃用户数 -->
+        <div class="bg-white p-6 rounded-lg shadow border-l-4 border-green-500">
+            <div class="flex justify-between items-center">
+                <div>
+                    <div class="text-gray-500 text-xs uppercase font-bold tracking-wider">活跃账号</div>
+                    <div class="mt-2 text-3xl font-bold text-gray-800">{{ active_users }}</div>
+                </div>
+                <div class="w-12 h-12 bg-green-50 text-green-500 rounded-full flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-user-shield"></i>
+                </div>
+            </div>
+            <a href="{% url 'audit:list' %}" class="mt-4 block text-xs text-green-600 hover:underline">查看日志 ></a>
+        </div>
+    </div>
+
+    <!-- 系统全站动态 -->
+    <div class="bg-white rounded-lg shadow">
+        <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+            <h3 class="font-bold text-gray-800">系统最新动态</h3>
+            <a href="{% url 'audit:list' %}" class="text-xs text-blue-600 hover:underline">查看全部</a>
+        </div>
+        <div class="px-6 py-4">
+            <div class="space-y-4">
+                {% for log in recent_activities %}
+                <div class="flex gap-4 items-start border-b border-gray-50 pb-3 last:border-0 last:pb-0">
+                    <div
+                        class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-500 shrink-0">
+                        {{ log.oper_user|slice:":1"|upper }}
+                    </div>
+                    <div>
+                        <div class="text-sm">
+                            <span class="font-bold text-gray-700">{{ log.oper_user }}</span>
+                            <span class="text-gray-600">{{ log.get_oper_type_display }}</span>
+                            <span class="text-gray-800 font-medium">{{ log.summary }}</span>
+                        </div>
+                        <div class="text-xs text-gray-400 mt-1">
+                            {{ log.oper_time|date:"Y-m-d H:i:s" }} · {{ log.ip_address }}
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="text-gray-400 text-center py-4">暂无活动记录</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    {% else %}
+
+    <!-- 2. 快捷入口与关键指标 (普通员工/HR) -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <!-- 考勤状态卡片 -->
+        <div
+            class="bg-white p-5 rounded-lg shadow border-l-4 {% if today_attendance %}border-green-500{% else %}border-orange-500{% endif %}">
+            <div class="flex justify-between items-start">
+                <div>
+                    <div class="text-gray-500 text-xs uppercase font-bold tracking-wider">今日考勤</div>
+                    <div class="mt-2 font-bold text-gray-800">
+                        {% if today_attendance %}
+                        {% if today_attendance.check_out_time %}
+                        <span class="text-green-600">已完工</span>
+                        {% else %}
+                        <span class="text-blue-600">工作中</span>
+                        {% endif %}
+                        {% else %}
+                        <span class="text-orange-500">未打卡</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="p-2 bg-gray-50 rounded-lg text-gray-400">
+                    <i class="fa-solid fa-clock"></i>
+                </div>
+            </div>
+            <div class="mt-4 pt-3 border-t border-gray-100 text-xs flex justify-between items-center">
+                <span class="text-gray-400">打卡时间</span>
+                <span class="font-mono text-gray-600">{{ today_attendance.check_in_time|date:"H:i"|default:"--:--"
+                    }}</span>
+            </div>
+            <a href="{% url 'attendance:dashboard' %}"
+                class="mt-3 block w-full text-center py-1.5 bg-gray-50 hover:bg-gray-100 rounded text-xs text-gray-600 transition-colors">
+                前往打卡 >
+            </a>
+        </div>
+
+        <!-- 待办审批卡片 -->
+        <div class="bg-white p-5 rounded-lg shadow border-l-4 border-purple-500">
+            <div class="flex justify-between items-start">
+                <div>
+                    <div class="text-gray-500 text-xs uppercase font-bold tracking-wider">待我审批</div>
+                    <div class="mt-2 font-bold text-2xl text-gray-800">{{ pending_approvals_count }}</div>
+                </div>
+                <div class="p-2 bg-gray-50 rounded-lg text-purple-400">
+                    <i class="fa-solid fa-stamp"></i>
+                </div>
+            </div>
+            <div class="mt-4 pt-3 border-t border-gray-100 text-xs">
+                <a href="{% url 'leave:approval_list' %}"
+                    class="text-purple-600 hover:text-purple-800 flex items-center gap-1">
+                    处理待办 <i class="fa-solid fa-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- 快捷操作：发起请假 -->
+        <a href="{% url 'leave:apply' %}"
+            class="bg-white p-5 rounded-lg shadow hover:shadow-md transition-shadow group flex flex-col justify-center items-center gap-3 border border-transparent hover:border-blue-500/30 cursor-pointer">
+            <div
+                class="w-12 h-12 rounded-full bg-blue-50 text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors flex items-center justify-center text-xl">
+                <i class="fa-solid fa-calendar-plus"></i>
+            </div>
+            <span class="font-medium text-gray-700 group-hover:text-blue-600">发起请假</span>
+        </a>
+
+        <!-- 快捷操作：修改密码 -->
+        <a href="{% url 'password_change' %}"
+            class="bg-white p-5 rounded-lg shadow hover:shadow-md transition-shadow group flex flex-col justify-center items-center gap-3 border border-transparent hover:border-green-500/30 cursor-pointer">
+            <div
+                class="w-12 h-12 rounded-full bg-green-50 text-green-600 group-hover:bg-green-600 group-hover:text-white transition-colors flex items-center justify-center text-xl">
+                <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <span class="font-medium text-gray-700 group-hover:text-green-600">安全设置</span>
+        </a>
+    </div>
+
+    <!-- 3. 主要内容区 Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- 左侧：最近申请单 -->
+        <div class="lg:col-span-2 bg-white rounded-lg shadow">
+            <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+                <h3 class="font-bold text-gray-800">我的近期申请</h3>
+                <a href="{% url 'leave:list' %}" class="text-xs text-blue-600 hover:underline">查看全部</a>
+            </div>
+            <div class="divide-y divide-gray-50">
+                {% for leave in recent_leaves %}
+                <div class="px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors">
+                    <div class="flex items-center gap-4">
+                        <div
+                            class="w-10 h-10 rounded-full bg-gray-100 text-gray-500 flex items-center justify-center text-sm">
+                            <i
+                                class="fa-solid {% if leave.leave_type == 'annual' %}fa-umbrella-beach{% else %}fa-briefcase-medical{% endif %}"></i>
+                        </div>
+                        <div>
+                            <div class="font-medium text-gray-800">{{ leave.get_leave_type_display }}</div>
+                            <div class="text-xs text-gray-500">
+                                {{ leave.start_time|date:"m-d H:i" }} 至 {{ leave.end_time|date:"m-d H:i" }}
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        {% if leave.apply_status == 'approved' %}
+                        <span class="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">已通过</span>
+                        {% elif leave.apply_status == 'rejected' %}
+                        <span class="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700">已拒绝</span>
+                        {% elif leave.apply_status == 'pending' %}
+                        <span
+                            class="px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700">审批中</span>
+                        {% else %}
+                        <span class="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">已撤销</span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% empty %}
+                <div class="p-8 text-center text-gray-400 text-sm">暂无申请记录</div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- 右侧：最近活动/日历 -->
+        <div class="space-y-6">
+            <!-- 迷你日历 -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-bold text-gray-800">{% now "Y年m月" %}</h3>
+                    <i class="fa-regular fa-calendar text-gray-400"></i>
+                </div>
+                <!-- 仅作装饰的日历网格 -->
+                <div class="grid grid-cols-7 gap-2 text-center text-xs">
+                    <div class="text-gray-300">日</div>
+                    <div class="text-gray-300">一</div>
+                    <div class="text-gray-300">二</div>
+                    <div class="text-gray-300">三</div>
+                    <div class="text-gray-300">四</div>
+                    <div class="text-gray-300">五</div>
+                    <div class="text-gray-300">六</div>
+                    <!-- 简单的日期模拟 -->
+                    {% for i in "123456789012345678901234567890"|make_list %}
+                    {% if forloop.counter <= 30 %} <div
+                        class="h-8 w-8 leading-8 rounded-full {% if forloop.counter == 15 %}bg-primary text-white shadow-lg shadow-blue-500/50{% else %}text-gray-600 hover:bg-gray-100{% endif %} cursor-default">
+                        {{ forloop.counter }}
+                </div>
+                {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- 最近动态 -->
+        <div class="bg-white rounded-lg shadow">
+            <div class="px-6 py-4 border-b border-gray-100">
+                <h3 class="font-bold text-gray-800">最新动态</h3>
+            </div>
+            <div class="px-6 py-4 space-y-4">
+                {% for log in recent_activities %}
+                <div class="flex gap-3 relative pb-4 last:pb-0">
+                    <!-- 连接线 -->
+                    {% if not forloop.last %}
+                    <div class="absolute top-2 left-1.5 w-px h-full bg-gray-100"></div>
+                    {% endif %}
+
+                    <div class="w-3 h-3 rounded-full bg-blue-200 border-2 border-white relative z-10 shrink-0 mt-1.5">
+                    </div>
+                    <div>
+                        <div class="text-xs text-gray-500 mb-1 font-mono">{{ log.oper_time|date:"H:i" }}</div>
+                        <div class="text-sm text-gray-700">{{ log.summary }}</div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="text-gray-400 text-xs text-center">暂无动态</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endif %}
+</div>
+{% endblock %}
