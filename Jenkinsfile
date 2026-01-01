@@ -70,11 +70,11 @@ pipeline {
             docker compose -f docker-compose.prod.yml --env-file .env.prod up -d --build
             # Wait for DB to be ready
             sleep 10
-            docker compose -f docker-compose.prod.yml --env-file .env.prod exec -T web python manage.py migrate
-            docker compose -f docker-compose.prod.yml --env-file .env.prod exec -T web python apply_triggers.py
-            docker compose -f docker-compose.prod.yml --env-file .env.prod exec -T web python apply_views.py
-            docker compose -f docker-compose.prod.yml --env-file .env.prod exec -T web python manage.py collectstatic --noinput
-            docker compose -f docker-compose.prod.yml --env-file .env.prod exec -T web python manage.py check
+            docker compose -f docker-compose.prod.yml --env-file .env.prod exec -T web python hrms/manage.py migrate
+            docker compose -f docker-compose.prod.yml --env-file .env.prod exec -T web python hrms/apply_triggers.py
+            docker compose -f docker-compose.prod.yml --env-file .env.prod exec -T web python hrms/apply_views.py
+            docker compose -f docker-compose.prod.yml --env-file .env.prod exec -T web python hrms/manage.py collectstatic --noinput
+            docker compose -f docker-compose.prod.yml --env-file .env.prod exec -T web python hrms/manage.py check
           '''
           
           sh """
