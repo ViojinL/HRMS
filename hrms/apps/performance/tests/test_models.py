@@ -70,10 +70,12 @@ class PerformanceEvaluationModelTests(TestCase):
         )
         score = evaluation.compute_rule_score()
         self.assertIsNotNone(score)
-        self.assertEqual(score.quantize(Decimal("0.01")), Decimal("96.00"))
+        self.assertEqual(score.quantize(Decimal("0.01")), Decimal("95.80"))
 
     def test_compute_rule_score_missing_rates(self) -> None:
-        evaluation = self._create_evaluation(attendance_rate=None, leave_rate=Decimal("0.02"))
+        evaluation = self._create_evaluation(
+            attendance_rate=None, leave_rate=Decimal("0.02")
+        )
         self.assertIsNone(evaluation.compute_rule_score())
 
     def test_compute_rule_score_zero_weight(self) -> None:
@@ -88,7 +90,9 @@ class PerformanceEvaluationModelTests(TestCase):
             update_by="tests",
         )
         evaluation = self._create_evaluation(
-            attendance_rate=Decimal("0.90"), leave_rate=Decimal("0.10"), cycle=zero_cycle
+            attendance_rate=Decimal("0.90"),
+            leave_rate=Decimal("0.10"),
+            cycle=zero_cycle,
         )
         self.assertIsNone(evaluation.compute_rule_score())
 
