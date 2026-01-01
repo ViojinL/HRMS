@@ -19,9 +19,10 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(BASE_DIR))  # ensure hrms/ is importable
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.base')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings.base")
 
 import django
+
 django.setup()
 
 from django.core.management import call_command
@@ -35,11 +36,16 @@ from apps.attendance.models import Attendance
 from apps.employee.models import Employee, EmployeeHistory
 from apps.leave.models import LeaveApply, LeaveTimeSegment
 from apps.organization.models import Organization
-from apps.performance.models import PerformanceCycle, PerformanceEvaluation, PerformanceIndicatorSet
+from apps.performance.models import (
+    PerformanceCycle,
+    PerformanceEvaluation,
+    PerformanceCycle,
+    PerformanceEvaluation,
+)
 from apps.performance.services import refresh_evaluation_metrics
 
 
-DEFAULT_PASSWORD = 'Password123!'
+DEFAULT_PASSWORD = "Password123!"
 SYSTEM_ACTOR_PK: str | None = None
 
 
@@ -52,12 +58,18 @@ def reset_database():
 
     print("=== 0) 重置数据库数据 (flush) ===")
     # 确保 schema 已就绪（新环境第一次运行时避免 flush 失败）
-    call_command('migrate', interactive=False, verbosity=0)
-    call_command('flush', interactive=False, verbosity=0)
+    call_command("migrate", interactive=False, verbosity=0)
+    call_command("flush", interactive=False, verbosity=0)
 
 
-def create_user(username: str, email: str, *, password: str = DEFAULT_PASSWORD, is_staff: bool = False,
-                is_superuser: bool = False) -> User:
+def create_user(
+    username: str,
+    email: str,
+    *,
+    password: str = DEFAULT_PASSWORD,
+    is_staff: bool = False,
+    is_superuser: bool = False,
+) -> User:
     user = User.objects.create(
         username=username,
         email=email,
@@ -76,18 +88,20 @@ def set_system_actor(user: User):
 
 def actor_id() -> str:
     if SYSTEM_ACTOR_PK is None:
-        raise RuntimeError('System actor is not set')
+        raise RuntimeError("System actor is not set")
     return SYSTEM_ACTOR_PK
 
 
-def create_org(org_code: str, org_name: str, org_type: str, *, parent=None, manager=None):
+def create_org(
+    org_code: str, org_name: str, org_type: str, *, parent=None, manager=None
+):
     org = Organization.objects.create(
         org_code=org_code,
         org_name=org_name,
         org_type=org_type,
         parent_org=parent,
         manager_emp=manager,
-        status='enabled',
+        status="enabled",
         effective_time=timezone.make_aware(datetime(2024, 1, 1)),
         create_by=actor_id(),
         update_by=actor_id(),
@@ -104,12 +118,14 @@ def create_employee(
     position: str,
     manager=None,
     password: str = DEFAULT_PASSWORD,
-    employment_type: str = 'full_time',
-    emp_status: str = 'active',
-    gender: str = 'male',
+    employment_type: str = "full_time",
+    emp_status: str = "active",
+    gender: str = "male",
     is_staff: bool = False,
 ):
-    user = create_user(username, f"{username}@hrms.com", password=password, is_staff=is_staff)
+    user = create_user(
+        username, f"{username}@hrms.com", password=password, is_staff=is_staff
+    )
     emp = Employee.objects.create(
         emp_id=emp_id,
         id_card=f"42010119900101{emp_id[-4:]}",
@@ -134,59 +150,156 @@ def create_employee(
 def seed_organizations_and_employees():
     """构建组织架构 + 员工账号（包含绩效部门与 CFO）。"""
 
-    admin_user = create_user('admin', 'admin@hrms.com', is_staff=True, is_superuser=True)
+    admin_user = create_user(
+        "admin", "admin@hrms.com", is_staff=True, is_superuser=True
+    )
     set_system_actor(admin_user)
 
     print("=== 1) 构建组织与员工/账号 ===")
 
     # 组织结构
-    root = create_org('ROOT', '未来科技集团', 'company')
-    fin = create_org('FIN', '财务与绩效中心', 'department', parent=root)
-    perf = create_org('PERF', '绩效管理部', 'department', parent=fin)
-    hr = create_org('HR', '人力资源部', 'department', parent=root)
-    tech = create_org('TECH', '技术研发中心', 'department', parent=root)
-    sales = create_org('SALES', '销售与市场部', 'department', parent=root)
+    root = create_org("ROOT", "未来科技集团", "company")
+    fin = create_org("FIN", "财务与绩效中心", "department", parent=root)
+    perf = create_org("PERF", "绩效管理部", "department", parent=fin)
+    hr = create_org("HR", "人力资源部", "department", parent=root)
+    tech = create_org("TECH", "技术研发中心", "department", parent=root)
+    sales = create_org("SALES", "销售与市场部", "department", parent=root)
 
-    fe = create_org('FE', '前端开发组', 'team', parent=tech)
-    be = create_org('BE', '后端开发组', 'team', parent=tech)
-    qa = create_org('QA', '质量保障组', 'team', parent=tech)
-    s_north = create_org('SALES-N', '北区销售组', 'team', parent=sales)
+    fe = create_org("FE", "前端开发组", "team", parent=tech)
+    be = create_org("BE", "后端开发组", "team", parent=tech)
+    qa = create_org("QA", "质量保障组", "team", parent=tech)
+    s_north = create_org("SALES-N", "北区销售组", "team", parent=sales)
 
     # 用户/员工（密码统一 DEFAULT_PASSWORD）
 
-    ceo = create_employee(username='ceo', name='张总', emp_id='E001', org=root, position='CEO', is_staff=True)
-    cfo = create_employee(username='cfo', name='林财务', emp_id='E002', org=fin, position='CFO', manager=ceo, is_staff=True)
+    ceo = create_employee(
+        username="ceo",
+        name="张总",
+        emp_id="E001",
+        org=root,
+        position="CEO",
+        is_staff=True,
+    )
+    cfo = create_employee(
+        username="cfo",
+        name="林财务",
+        emp_id="E002",
+        org=fin,
+        position="CFO",
+        manager=ceo,
+        is_staff=True,
+    )
     perf_admin = create_employee(
-        username='perf_admin',
-        name='周绩效',
-        emp_id='E003',
+        username="perf_admin",
+        name="周绩效",
+        emp_id="E003",
         org=perf,
-        position='绩效经理',
+        position="绩效经理",
         manager=cfo,
         is_staff=True,
     )
     perf_staff = create_employee(
-        username='perf_staff',
-        name='孙绩效',
-        emp_id='E015',
+        username="perf_staff",
+        name="孙绩效",
+        emp_id="E015",
         org=perf,
-        position='绩效专员',
+        position="绩效专员",
         manager=perf_admin,
     )
 
-    hr_dir = create_employee(username='hr_dir', name='李人资', emp_id='E004', org=hr, position='HR Director', manager=ceo, is_staff=True)
-    tech_dir = create_employee(username='tech_dir', name='王技术', emp_id='E005', org=tech, position='Tech Director', manager=ceo, is_staff=True)
-    sales_dir = create_employee(username='sales_dir', name='刘销售', emp_id='E006', org=sales, position='Sales Director', manager=ceo, is_staff=True)
+    hr_dir = create_employee(
+        username="hr_dir",
+        name="李人资",
+        emp_id="E004",
+        org=hr,
+        position="HR Director",
+        manager=ceo,
+        is_staff=True,
+    )
+    tech_dir = create_employee(
+        username="tech_dir",
+        name="王技术",
+        emp_id="E005",
+        org=tech,
+        position="Tech Director",
+        manager=ceo,
+        is_staff=True,
+    )
+    sales_dir = create_employee(
+        username="sales_dir",
+        name="刘销售",
+        emp_id="E006",
+        org=sales,
+        position="Sales Director",
+        manager=ceo,
+        is_staff=True,
+    )
 
-    fe_lead = create_employee(username='fe_lead', name='赵前端', emp_id='E007', org=fe, position='前端组长', manager=tech_dir)
-    be_lead = create_employee(username='be_lead', name='孙后端', emp_id='E008', org=be, position='后端组长', manager=tech_dir)
-    qa_lead = create_employee(username='qa_lead', name='钱测试', emp_id='E009', org=qa, position='测试组长', manager=tech_dir)
-    sales_mgr = create_employee(username='sales_mgr', name='周销售', emp_id='E010', org=s_north, position='销售经理', manager=sales_dir)
+    fe_lead = create_employee(
+        username="fe_lead",
+        name="赵前端",
+        emp_id="E007",
+        org=fe,
+        position="前端组长",
+        manager=tech_dir,
+    )
+    be_lead = create_employee(
+        username="be_lead",
+        name="孙后端",
+        emp_id="E008",
+        org=be,
+        position="后端组长",
+        manager=tech_dir,
+    )
+    qa_lead = create_employee(
+        username="qa_lead",
+        name="钱测试",
+        emp_id="E009",
+        org=qa,
+        position="测试组长",
+        manager=tech_dir,
+    )
+    sales_mgr = create_employee(
+        username="sales_mgr",
+        name="周销售",
+        emp_id="E010",
+        org=s_north,
+        position="销售经理",
+        manager=sales_dir,
+    )
 
-    dev1 = create_employee(username='dev001', name='林前端', emp_id='E011', org=fe, position='高级前端', manager=fe_lead)
-    dev2 = create_employee(username='dev002', name='陈后端', emp_id='E012', org=be, position='高级后端', manager=be_lead)
-    qa1 = create_employee(username='qa001', name='郑测试', emp_id='E013', org=qa, position='测试工程师', manager=qa_lead)
-    sales1 = create_employee(username='sales001', name='马销售', emp_id='E014', org=s_north, position='客户经理', manager=sales_mgr)
+    dev1 = create_employee(
+        username="dev001",
+        name="林前端",
+        emp_id="E011",
+        org=fe,
+        position="高级前端",
+        manager=fe_lead,
+    )
+    dev2 = create_employee(
+        username="dev002",
+        name="陈后端",
+        emp_id="E012",
+        org=be,
+        position="高级后端",
+        manager=be_lead,
+    )
+    qa1 = create_employee(
+        username="qa001",
+        name="郑测试",
+        emp_id="E013",
+        org=qa,
+        position="测试工程师",
+        manager=qa_lead,
+    )
+    sales1 = create_employee(
+        username="sales001",
+        name="马销售",
+        emp_id="E014",
+        org=s_north,
+        position="客户经理",
+        manager=sales_mgr,
+    )
 
     # 回填负责人（用于 is_manager、组织树展示）
     manager_updates = [
@@ -205,38 +318,49 @@ def seed_organizations_and_employees():
         Organization.objects.filter(pk=org.pk).update(manager_emp=manager)
 
     employees = [
-        ceo, cfo, perf_admin, perf_staff,
-        hr_dir, tech_dir, sales_dir,
-        fe_lead, be_lead, qa_lead, sales_mgr,
-        dev1, dev2, qa1, sales1,
+        ceo,
+        cfo,
+        perf_admin,
+        perf_staff,
+        hr_dir,
+        tech_dir,
+        sales_dir,
+        fe_lead,
+        be_lead,
+        qa_lead,
+        sales_mgr,
+        dev1,
+        dev2,
+        qa1,
+        sales1,
     ]
 
     return {
-        'orgs': {
-            'root': root,
-            'fin': fin,
-            'perf': perf,
-            'hr': hr,
-            'tech': tech,
-            'sales': sales,
+        "orgs": {
+            "root": root,
+            "fin": fin,
+            "perf": perf,
+            "hr": hr,
+            "tech": tech,
+            "sales": sales,
         },
-        'employees': employees,
-        'people': {
-            'ceo': ceo,
-            'cfo': cfo,
-            'perf_admin': perf_admin,
-            'hr_dir': hr_dir,
-            'tech_dir': tech_dir,
-            'sales_dir': sales_dir,
-            'fe_lead': fe_lead,
-            'be_lead': be_lead,
-            'qa_lead': qa_lead,
-            'sales_mgr': sales_mgr,
-            'dev1': dev1,
-            'dev2': dev2,
-            'qa1': qa1,
-            'sales1': sales1,
-            'perf_staff': perf_staff,
+        "employees": employees,
+        "people": {
+            "ceo": ceo,
+            "cfo": cfo,
+            "perf_admin": perf_admin,
+            "hr_dir": hr_dir,
+            "tech_dir": tech_dir,
+            "sales_dir": sales_dir,
+            "fe_lead": fe_lead,
+            "be_lead": be_lead,
+            "qa_lead": qa_lead,
+            "sales_mgr": sales_mgr,
+            "dev1": dev1,
+            "dev2": dev2,
+            "qa1": qa1,
+            "sales1": sales1,
+            "perf_staff": perf_staff,
         },
     }
 
@@ -252,38 +376,30 @@ def seed_performance_2024_h1_h2(employees):
 
     cycles = [
         {
-            'cycle_name': '2024 上半年（H1）全员绩效',
-            'cycle_type': 'semiannual',
-            'start': timezone.make_aware(_dt(2024, 1, 1, 0, 0, 0)),
-            'end': timezone.make_aware(_dt(2024, 6, 30, 23, 59, 59)),
+            "cycle_name": "2024 上半年（H1）全员绩效",
+            "cycle_type": "semiannual",
+            "start": timezone.make_aware(_dt(2024, 1, 1, 0, 0, 0)),
+            "end": timezone.make_aware(_dt(2024, 6, 30, 23, 59, 59)),
         },
         {
-            'cycle_name': '2024 下半年（H2）全员绩效',
-            'cycle_type': 'semiannual',
-            'start': timezone.make_aware(_dt(2024, 7, 1, 0, 0, 0)),
-            'end': timezone.make_aware(_dt(2024, 12, 31, 23, 59, 59)),
+            "cycle_name": "2024 下半年（H2）全员绩效",
+            "cycle_type": "semiannual",
+            "start": timezone.make_aware(_dt(2024, 7, 1, 0, 0, 0)),
+            "end": timezone.make_aware(_dt(2024, 12, 31, 23, 59, 59)),
         },
     ]
 
     created_evals = 0
     for c in cycles:
         cycle = PerformanceCycle.objects.create(
-            cycle_name=c['cycle_name'],
-            cycle_type=c['cycle_type'],
-            start_time=c['start'],
-            end_time=c['end'],
-            status='archived',
+            cycle_name=c["cycle_name"],
+            cycle_type=c["cycle_type"],
+            start_time=c["start"],
+            end_time=c["end"],
+            status="archived",
             org=None,
             attendance_weight=60,
             leave_weight=40,
-            create_by=actor_id(),
-            update_by=actor_id(),
-        )
-
-        kpi = PerformanceIndicatorSet.objects.create(
-            set_name=f"{cycle.cycle_name} 通用KPI",
-            cycle=cycle,
-            total_weight=100,
             create_by=actor_id(),
             update_by=actor_id(),
         )
@@ -292,11 +408,10 @@ def seed_performance_2024_h1_h2(employees):
             ev = PerformanceEvaluation.objects.create(
                 cycle=cycle,
                 emp=emp,
-                indicator_set=kpi,
-                evaluation_status='completed',
-                appeal_status='none',
+                evaluation_status="completed",
+                appeal_status="none",
                 final_score=None,
-                final_remark='绩效部门统一核算（示例数据）',
+                final_remark="绩效部门统一核算（示例数据）",
                 create_by=actor_id(),
                 update_by=actor_id(),
             )
@@ -305,7 +420,7 @@ def seed_performance_2024_h1_h2(employees):
             # 示例：最终得分默认采用规则得分（若暂无数据则保持为空）
             if ev.rule_score is not None:
                 ev.final_score = ev.rule_score
-                ev.save(update_fields=['final_score'])
+                ev.save(update_fields=["final_score"])
 
             created_evals += 1
 
@@ -319,15 +434,48 @@ def seed_leave_2024(people: dict):
 
     cases = [
         # dev1：上半年 5 天年假 + 下半年 2 天游休
-        (people['dev1'], 'annual', '春节探亲', _dt(2024, 2, 5, 9), _dt(2024, 2, 9, 18), Decimal('5.0')),
-        (people['dev1'], 'lieu', '周末加班调休', _dt(2024, 9, 2, 9), _dt(2024, 9, 3, 18), Decimal('2.0')),
-
+        (
+            people["dev1"],
+            "annual",
+            "春节探亲",
+            _dt(2024, 2, 5, 9),
+            _dt(2024, 2, 9, 18),
+            Decimal("5.0"),
+        ),
+        (
+            people["dev1"],
+            "lieu",
+            "周末加班调休",
+            _dt(2024, 9, 2, 9),
+            _dt(2024, 9, 3, 18),
+            Decimal("2.0"),
+        ),
         # sales1：上半年 1.5 天病假 + 下半年 1 天事假
-        (people['sales1'], 'sick', '流感请假', _dt(2024, 3, 18, 14), _dt(2024, 3, 19, 18), Decimal('1.5')),
-        (people['sales1'], 'personal', '家庭事务处理', _dt(2024, 11, 14, 9), _dt(2024, 11, 14, 18), Decimal('1.0')),
-
+        (
+            people["sales1"],
+            "sick",
+            "流感请假",
+            _dt(2024, 3, 18, 14),
+            _dt(2024, 3, 19, 18),
+            Decimal("1.5"),
+        ),
+        (
+            people["sales1"],
+            "personal",
+            "家庭事务处理",
+            _dt(2024, 11, 14, 9),
+            _dt(2024, 11, 14, 18),
+            Decimal("1.0"),
+        ),
         # qa1：上半年 2 天事假
-        (people['qa1'], 'personal', '个人事务', _dt(2024, 6, 10, 9), _dt(2024, 6, 11, 18), Decimal('2.0')),
+        (
+            people["qa1"],
+            "personal",
+            "个人事务",
+            _dt(2024, 6, 10, 9),
+            _dt(2024, 6, 11, 18),
+            Decimal("2.0"),
+        ),
     ]
 
     created = 0
@@ -335,7 +483,7 @@ def seed_leave_2024(people: dict):
         leave = LeaveApply.objects.create(
             emp=emp,
             leave_type=leave_type,
-            apply_status='approved',
+            apply_status="approved",
             apply_time=timezone.make_aware(start_dt) - timedelta(days=2),
             reason=reason,
             attachment_url=None,
@@ -371,8 +519,8 @@ def seed_attendance_2024(employees):
     end_day = date(2024, 12, 31)
 
     segments = list(
-        LeaveTimeSegment.objects.select_related('leave').filter(
-            leave__apply_status='approved',
+        LeaveTimeSegment.objects.select_related("leave").filter(
+            leave__apply_status="approved",
             leave_start_time__date__lte=end_day,
             leave_end_time__date__gte=start_day,
         )
@@ -383,7 +531,7 @@ def seed_attendance_2024(employees):
         cur = seg.leave_start_time.date()
         last = seg.leave_end_time.date()
         while cur <= last:
-            emp_key = getattr(seg, 'emp_id')
+            emp_key = getattr(seg, "emp_id")
             leave_days_by_emp.setdefault(emp_key, set()).add(cur)
             cur += timedelta(days=1)
 
@@ -395,16 +543,22 @@ def seed_attendance_2024(employees):
             continue
 
         for emp in employees:
-            status = 'leave' if day in leave_days_by_emp.get(emp.id, set()) else 'normal'
+            status = (
+                "leave" if day in leave_days_by_emp.get(emp.id, set()) else "normal"
+            )
             Attendance.objects.create(
                 emp=emp,
                 attendance_date=day,
-                attendance_type='check_in',
-                check_in_time=timezone.make_aware(datetime(day.year, day.month, day.day, 9, 0)),
-                check_out_time=timezone.make_aware(datetime(day.year, day.month, day.day, 18, 0)),
+                attendance_type="check_in",
+                check_in_time=timezone.make_aware(
+                    datetime(day.year, day.month, day.day, 9, 0)
+                ),
+                check_out_time=timezone.make_aware(
+                    datetime(day.year, day.month, day.day, 18, 0)
+                ),
                 attendance_status=status,
                 exception_reason=None,
-                appeal_status='none',
+                appeal_status="none",
                 create_by=actor_id(),
                 update_by=actor_id(),
             )
@@ -419,10 +573,10 @@ def main():
     reset_database()
 
     ctx = seed_organizations_and_employees()
-    employees = ctx['employees']
+    employees = ctx["employees"]
 
     # 先请假 → 再考勤（考勤会把请假日期标记为 leave）
-    seed_leave_2024(ctx['people'])
+    seed_leave_2024(ctx["people"])
     seed_attendance_2024(employees)
 
     # 再生成绩效（会刷新并写回出勤/请假率与规则得分）
@@ -440,5 +594,5 @@ def main():
     print("- dev001 / dev002 / qa001 / sales001 (普通员工)")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
