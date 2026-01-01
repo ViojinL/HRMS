@@ -57,7 +57,7 @@ pipeline {
         withCredentials([sshUserPrivateKey(credentialsId: 'vps-deploy-key', keyFileVariable: 'SSH_KEY', usernameVariable: 'SSH_USER')]) {
           sh """
             set -euo pipefail
-            ssh -i $SSH_KEY -p ${VPS_SSH_PORT} ${VPS_USER}@${VPS_HOST} <<'EOF'
+            ssh -o StrictHostKeyChecking=no -i $SSH_KEY -p ${VPS_SSH_PORT} ${VPS_USER}@${VPS_HOST} <<'EOF'
               cd ${DEPLOY_DIR}
               git fetch origin
               git reset --hard origin/main
