@@ -3,6 +3,12 @@ pipeline {
   environment {
     DJANGO_SETTINGS_MODULE = 'config.settings.base'
     PYTHONUNBUFFERED = '1'
+    VPS_HOST = '198.12.74.104'
+    VPS_USER = 'deploy'
+    VPS_SSH_PORT = '20189'
+    DEPLOY_DIR = '/srv/hrms'
+    DOMAIN_NAME = 'hrms.kohinbox.top'
+    PIP_BREAK_SYSTEM_PACKAGES = '1'
   }
   stages {
     stage('Checkout') {
@@ -44,7 +50,24 @@ pipeline {
     }
     stage('Deploy') {
       steps {
-        sh 'bash scripts/deploy.sh'
+        withCredentials([sshUserPrivateKey(credentialsId: 'vps-deploy-key', keyFileVariable: 'SSH_KEY', usernameVariable: 'SSH_USER')]) {
+          sh """
+            set -euo pipefail
+            ssh -i $SSH_KEY -p ${VPS_SSH_PORT} ${VPS_USER}@${VPS_HOST} <<'EOF'
+              cd ${DEPLOY_DIR}
+              git fetch origin
+              git reset --hard origin/main
+              docker compose -f docker-compose.prod.yml pull
+              docker compose -f docker-compose.prod.yml up -d --build
+              docker compose -f docker-compose.prod.yml exec web python manage.py migrate
+              docker compose -f docker-compose.prod.yml exec web python hrms/apply_triggers.py
+              docker compose -f docker-compose.prod.yml exec web python hrms/apply_views.py
+              docker compose -f docker-compose.prod.yml exec web python manage.py collectstatic --noinput
+              docker compose -f docker-compose.prod.yml exec web python manage.py check
+            EOF
+          """
+          sh "curl -fsSL https://${DOMAIN_NAME}/health/"
+        }
       }
     }
   }
