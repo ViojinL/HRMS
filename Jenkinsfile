@@ -66,13 +66,15 @@ pipeline {
               echo "Error: .env.prod not found!"
               exit 1
             fi
-            docker compose -f docker-compose.prod.yml pull
-            docker compose -f docker-compose.prod.yml up -d --build
-            docker compose -f docker-compose.prod.yml exec -T web python manage.py migrate
-            docker compose -f docker-compose.prod.yml exec -T web python apply_triggers.py
-            docker compose -f docker-compose.prod.yml exec -T web python apply_views.py
-            docker compose -f docker-compose.prod.yml exec -T web python manage.py collectstatic --noinput
-            docker compose -f docker-compose.prod.yml exec -T web python manage.py check
+            docker compose -f docker-compose.prod.yml --env-file .env.prod pull
+            docker compose -f docker-compose.prod.yml --env-file .env.prod up -d --build
+            # Wait for DB to be ready
+            sleep 10
+            docker compose -f docker-compose.prod.yml --env-file .env.prod exec -T web python manage.py migrate
+            docker compose -f docker-compose.prod.yml --env-file .env.prod exec -T web python apply_triggers.py
+            docker compose -f docker-compose.prod.yml --env-file .env.prod exec -T web python apply_views.py
+            docker compose -f docker-compose.prod.yml --env-file .env.prod exec -T web python manage.py collectstatic --noinput
+            docker compose -f docker-compose.prod.yml --env-file .env.prod exec -T web python manage.py check
           '''
           
           sh """
