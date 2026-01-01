@@ -25,7 +25,11 @@ pipeline {
     }
     stage('Install dependencies') {
       steps {
-         // Install inside the container
+         script {
+           // Copy code into container because volume mount fails in DIND
+           def webContainer = sh(script: "docker compose -f ci/docker-compose.yml ps -q web", returnStdout: true).trim()
+           sh "docker cp . ${webContainer}:/app"
+         }
          sh 'docker compose -f ci/docker-compose.yml exec -T web pip install -r requirements.txt'
       }
     }
