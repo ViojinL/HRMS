@@ -55,22 +55,35 @@ pipeline {
     stage('Deploy') {
       steps {
         withCredentials([sshUserPrivateKey(credentialsId: 'vps-deploy-key', keyFileVariable: 'SSH_KEY', usernameVariable: 'SSH_USER')]) {
+          // Create a deployment script
+          writeFile file: 'deploy.sh', text: '''#!/bin/bash
+            set -euo pipefail
+            cd /srv/hrms
+            git fetch origin
+            git reset --hard origin/main
+            # Verify env file exists
+            if [ ! -f .env.prod ]; then
+              echo "Error: .env.prod not found!"
+              exit 1
+            fi
+            docker compose -f docker-compose.prod.yml pull
+            docker compose -f docker-compose.prod.yml up -d --build
+            docker compose -f docker-compose.prod.yml exec -T web python manage.py migrate
+            docker compose -f docker-compose.prod.yml exec -T web python apply_triggers.py
+            docker compose -f docker-compose.prod.yml exec -T web python apply_views.py
+            docker compose -f docker-compose.prod.yml exec -T web python manage.py collectstatic --noinput
+            docker compose -f docker-compose.prod.yml exec -T web python manage.py check
+          '''
+          
           sh """
             set -euo pipefail
-            ssh -o StrictHostKeyChecking=no -i $SSH_KEY -p ${VPS_SSH_PORT} ${VPS_USER}@${VPS_HOST} <<'EOF'
-              cd ${DEPLOY_DIR}
-              git fetch origin
-              git reset --hard origin/main
-              docker compose -f docker-compose.prod.yml pull
-              docker compose -f docker-compose.prod.yml up -d --build
-              docker compose -f docker-compose.prod.yml exec web python manage.py migrate
-              docker compose -f docker-compose.prod.yml exec web python apply_triggers.py
-              docker compose -f docker-compose.prod.yml exec web python apply_views.py
-              docker compose -f docker-compose.prod.yml exec web python manage.py collectstatic --noinput
-              docker compose -f docker-compose.prod.yml exec web python manage.py check
-            EOF
+            # Copy script to VPS
+            scp -o StrictHostKeyChecking=no -i $SSH_KEY -P ${VPS_SSH_PORT} deploy.sh ${VPS_USER}@${VPS_HOST}:/tmp/deploy.sh
+            # Execute script
+            ssh -o StrictHostKeyChecking=no -i $SSH_KEY -p ${VPS_SSH_PORT} ${VPS_USER}@${VPS_HOST} "chmod +x /tmp/deploy.sh && /tmp/deploy.sh"
+            # Health check
+            curl -fsSL https://${DOMAIN_NAME}/ # health might redirect to login, just check root for now or health endpoint if no auth required
           """
-          sh "curl -fsSL https://${DOMAIN_NAME}/health/"
         }
       }
     }
