@@ -8,6 +8,21 @@
     <div class="mb-6 border-b pb-4">
         <h2 class="text-xl font-bold text-gray-800">{{ object.cycle.cycle_name }}</h2>
         <p class="text-gray-500 mt-1">被考核人：{{ object.emp.emp_name }} | 部门：{{ object.emp.org.org_name }}</p>
+        <p class="text-gray-500 mt-1 text-sm">
+            系统规则：出勤率 {{ object.cycle.attendance_weight }}% + 请假率 {{ object.cycle.leave_weight }}%
+            {% if object.rule_score != None %}
+            ｜规则得分：<span class="font-semibold text-gray-700">{{ object.rule_score }}</span>
+            {% else %}
+            ｜规则得分：-
+            {% endif %}
+        </p>
+        <p class="text-gray-500 mt-1 text-sm">
+            {% if object.attendance_rate_percent != None and object.leave_rate_percent != None %}
+            出勤率：{{ object.attendance_rate_percent }}% ｜ 请假率：{{ object.leave_rate_percent }}%
+            {% else %}
+            出勤/请假数据：暂无（需要考勤/请假数据支撑）
+            {% endif %}
+        </p>
     </div>
 
     <form method="post" class="space-y-6">

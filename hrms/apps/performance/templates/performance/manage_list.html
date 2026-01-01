@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block title %}评估管理 - HRMS{% endblock %}
+{% block page_title %}绩效评估管理{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-lg shadow p-6">
+    <div class="mb-4 flex items-center justify-between">
+        <div>
+            <h3 class="text-lg font-bold text-gray-700">评估列表（绩效部门）</h3>
+            <p class="text-sm text-gray-500 mt-1">统一由绩效部门维护评分、状态与评价。</p>
+        </div>
+        <a href="{% url 'performance:search' %}"
+            class="px-3 py-2 text-sm bg-purple-50 text-purple-700 rounded border border-purple-200 hover:bg-purple-100 transition-colors">
+            高级查找
+        </a>
+    </div>
+
+    <div class="overflow-x-auto">
+        <table class="w-full text-left">
+            <thead>
+                <tr class="text-gray-500 border-b border-gray-100">
+                    <th class="py-3 px-4">员工</th>
+                    <th class="py-3 px-4">周期</th>
+                    <th class="py-3 px-4">出勤/请假</th>
+                    <th class="py-3 px-4">规则得分</th>
+                    <th class="py-3 px-4">最终得分</th>
+                    <th class="py-3 px-4">状态</th>
+                    <th class="py-3 px-4">操作</th>
+                </tr>
+            </thead>
+            <tbody class="text-sm text-gray-700">
+                {% for eval in evaluations %}
+                <tr class="hover:bg-gray-50 border-b border-gray-50 last:border-0">
+                    <td class="py-3 px-4">
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center font-bold text-xs">
+                                {{ eval.emp.emp_name|slice:":1" }}
+                            </div>
+                            <div>
+                                <div class="font-medium">{{ eval.emp.emp_name }}</div>
+                                <div class="text-xs text-gray-500">{{ eval.emp.org.org_name|default:"-" }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="py-3 px-4">{{ eval.cycle.cycle_name }}</td>
+                    <td class="py-3 px-4 text-gray-500">
+                        {% if eval.attendance_rate_percent != None and eval.leave_rate_percent != None %}
+                        出勤 {{ eval.attendance_rate_percent }}% / 请假 {{ eval.leave_rate_percent }}%
+                        {% else %}
+                        -
+                        {% endif %}
+                    </td>
+                    <td class="py-3 px-4 font-medium">{{ eval.rule_score|default:"-" }}</td>
+                    <td class="py-3 px-4 font-bold">{{ eval.final_score|default:"-" }}</td>
+                    <td class="py-3 px-4">{{ eval.get_evaluation_status_display }}</td>
+                    <td class="py-3 px-4">
+                        <a href="{% url 'performance:manage_edit' eval.pk %}" class="text-primary hover:underline">编辑</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="py-8 text-center text-gray-400">暂无评估记录</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

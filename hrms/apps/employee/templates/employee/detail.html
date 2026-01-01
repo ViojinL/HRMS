@@ -4,122 +4,141 @@
 {% block page_title %}员工详情{% endblock %}
 
 {% block content %}
-<div class="max-w-5xl mx-auto space-y-6">
-    <!-- 头部卡片 -->
-    <div class="bg-white rounded-lg shadow p-6 flex items-start gap-6">
-        <div
-            class="w-24 h-24 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white flex items-center justify-center text-3xl font-bold shadow-lg">
-            {{ emp.emp_name|slice:":1" }}
-        </div>
-        <div class="flex-1">
-            <div class="flex justify-between items-start">
-                <div>
-                    <h2 class="text-2xl font-bold text-gray-900 flex items-center gap-3">
-                        {{ emp.emp_name }}
-                        {% if emp.gender == 'male' %}
-                        <i class="fa-solid fa-mars text-blue-400 text-lg"></i>
-                        {% else %}
-                        <i class="fa-solid fa-venus text-pink-400 text-lg"></i>
-                        {% endif %}
-                    </h2>
-                    <p class="text-gray-500 mt-1 flex items-center gap-4 text-sm">
-                        <span><i class="fa-regular fa-id-badge mr-1"></i> {{ emp.emp_id }}</span>
-                        <span><i class="fa-solid fa-briefcase mr-1"></i> {{ emp.position }}</span>
-                        <span><i class="fa-regular fa-envelope mr-1"></i> {{ emp.email }}</span>
-                    </p>
-                </div>
-                <div class="flex gap-3">
-                    <a href="{% url 'employee:edit' emp.pk %}"
-                        class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 text-sm">编辑档案</a>
-                    <button class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-600 text-sm">调整岗位</button>
+<div class="max-w-6xl mx-auto space-y-8">
+    <!-- 顶部概览 -->
+    <section class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white rounded-3xl shadow-2xl overflow-hidden">
+        <div class="grid gap-10 p-8 lg:grid-cols-[auto,1fr]">
+                <div class="flex lg:block items-center gap-4">
+                <div class="relative">
+                    <div
+                        class="w-28 h-28 rounded-full bg-white/10 border border-white/30 flex items-center justify-center text-4xl font-black tracking-wider text-white shadow-lg">
+                        {{ emp.emp_name|slice:":1" }}
+                    </div>
+                    <span
+                        class="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-white/90 text-slate-900 text-xs font-semibold uppercase px-3 py-1 rounded-full shadow-sm">
+                        {{ emp.emp_id }}
+                    </span>
                 </div>
             </div>
-
-            <div class="mt-6 flex gap-8 border-t border-gray-100 pt-6">
-                <div>
-                    <div class="text-xs text-gray-400 uppercase">所属部门</div>
-                    <div class="font-medium mt-1">{{ emp.org.org_name }}</div>
-                </div>
-                <div>
-                    <div class="text-xs text-gray-400 uppercase">直接上级</div>
-                    <div class="font-medium mt-1">
-                        {% if emp.manager_emp %}
-                        <span class="text-primary cursor-pointer hover:underline">{{ emp.manager_emp.emp_name }}</span>
-                        {% else %}
-                        <span class="text-gray-400">-</span>
-                        {% endif %}
+            <div class="space-y-6">
+                <div class="flex flex-col gap-3">
+                    <div class="flex flex-wrap items-center gap-3 justify-between">
+                        <div>
+                            <h1 class="text-4xl font-semibold tracking-tight flex items-center gap-3">
+                                {{ emp.emp_name }}
+                                {% if emp.gender == 'male' %}
+                                <i class="fa-solid fa-mars text-blue-200"></i>
+                                {% else %}
+                                <i class="fa-solid fa-venus text-pink-200"></i>
+                                {% endif %}
+                            </h1>
+                            <p class="text-sm text-white/70 flex flex-wrap gap-4 mt-1">
+                                <span><i class="fa-regular fa-briefcase"></i> {{ emp.position }}</span>
+                                <span><i class="fa-regular fa-envelope"></i> {{ emp.email }}</span>
+                            </p>
+                        </div>
+                        <div class="flex flex-wrap gap-3">
+                            <a href="{% url 'employee:edit' emp.pk %}"
+                                class="px-4 py-2 border border-white/40 rounded-lg text-white hover:bg-white/10 text-sm font-medium">编辑档案</a>
+                            <a href="{% url 'employee:edit' emp.pk %}?focus=position"
+                                class="px-4 py-2 bg-white text-slate-900 rounded-lg shadow-lg text-sm font-medium hover:bg-slate-100">调整岗位</a>
+                        </div>
                     </div>
-                </div>
-                <div>
-                    <div class="text-xs text-gray-400 uppercase">入职时间</div>
-                    <div class="font-medium mt-1">{{ emp.hire_date|date:"Y-m-d" }}</div>
-                </div>
-                <div>
-                    <div class="text-xs text-gray-400 uppercase">员工状态</div>
-                    <div class="font-medium mt-1">
-                        <span class="px-2 py-0.5 rounded bg-green-100 text-green-700 text-xs">{{
-                            emp.get_emp_status_display }}</span>
+                    <div class="grid gap-4 sm:grid-cols-2 text-sm text-white/80">
+                        <div>
+                            <p class="text-xs uppercase tracking-[0.3em] text-white/60">入职日期</p>
+                            <p class="text-lg font-semibold">{{ emp.hire_date|date:"Y-m-d" }}</p>
+                        </div>
+                        <div>
+                            <p class="text-xs uppercase tracking-[0.3em] text-white/60">员工状态</p>
+                            <span
+                                class="inline-flex items-center justify-center px-3 py-1 rounded-full bg-emerald-100/90 text-emerald-900 text-xs font-semibold">{{ emp.get_emp_status_display }}</span>
+                        </div>
+                    </div>
+                    <div class="grid gap-6 sm:grid-cols-2 text-sm text-white/70">
+                        <div>
+                            <p class="text-xs uppercase tracking-[0.3em] text-white/50">直接上级</p>
+                            {% if emp.manager_emp %}
+                            <p class="text-base font-semibold text-white">{{ emp.manager_emp.emp_name }}</p>
+                            {% else %}
+                            <p class="text-base font-semibold text-white">未指定</p>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <p class="text-xs uppercase tracking-[0.3em] text-white/50">联系方式</p>
+                            <p class="text-base font-semibold text-white">{{ emp.phone }}</p>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    </section>
 
-    <div class="grid grid-cols-3 gap-6">
-        <!-- 基本信息 -->
-        <div class="col-span-2 bg-white rounded-lg shadow p-6">
-            <h3 class="font-bold text-gray-800 mb-4 pb-2 border-b border-gray-100">基本信息</h3>
-            <dl class="grid grid-cols-2 gap-x-4 gap-y-6 text-sm">
+    <div class="grid gap-6 lg:grid-cols-[minmax(0,2fr),minmax(0,1fr)]">
+        <!-- 详细档案 -->
+        <section class="bg-white rounded-3xl shadow p-6 space-y-6">
+            <h2 class="text-xl font-semibold text-slate-900">员工档案概览</h2>
+            <dl class="grid grid-cols-1 sm:grid-cols-2 gap-6 text-sm text-slate-600">
                 <div>
-                    <dt class="text-gray-500 mb-1">身份证号</dt>
-                    <dd class="font-medium">{{ emp.id_card|default:"-" }}</dd>
+                    <dt class="text-xs text-slate-400 uppercase tracking-[0.3em]">身份证号</dt>
+                    <dd class="mt-1 font-medium text-slate-900">{{ emp.id_card|default:"-" }}</dd>
                 </div>
                 <div>
-                    <dt class="text-gray-500 mb-1">手机号码</dt>
-                    <dd class="font-medium">{{ emp.phone }}</dd>
+                    <dt class="text-xs text-slate-400 uppercase tracking-[0.3em]">出生日期</dt>
+                    <dd class="mt-1 font-medium text-slate-900">{{ emp.birth_date|date:"Y-m-d" }}</dd>
                 </div>
                 <div>
-                    <dt class="text-gray-500 mb-1">出生日期</dt>
-                    <dd class="font-medium">{{ emp.birth_date|date:"Y-m-d" }}</dd>
+                    <dt class="text-xs text-slate-400 uppercase tracking-[0.3em]">雇佣类型</dt>
+                    <dd class="mt-1 font-medium text-slate-900">{{ emp.get_employment_type_display }}</dd>
                 </div>
                 <div>
-                    <dt class="text-gray-500 mb-1">雇佣类型</dt>
-                    <dd class="font-medium">{{ emp.get_employment_type_display }}</dd>
-                </div>
-                <div class="col-span-2">
-                    <dt class="text-gray-500 mb-1">系统账号关联</dt>
-                    <dd class="font-medium flex items-center gap-2">
+                    <dt class="text-xs text-slate-400 uppercase tracking-[0.3em]">系统账号关联</dt>
+                    <dd class="mt-1 flex items-center gap-2 font-medium">
                         {% if emp.user %}
-                        <span class="bg-gray-100 px-2 py-1 rounded text-xs font-mono">{{ emp.user.username }}</span>
-                        {% if emp.user.is_superuser %} <span
-                            class="text-xs text-red-500 border border-red-200 px-1 rounded">超级管理员</span>{% endif %}
+                        <span class="px-2 py-1 rounded bg-slate-100 text-xs font-mono text-slate-700">{{ emp.user.username }}</span>
+                        {% if emp.user.is_superuser %}<span
+                            class="px-2 py-0.5 border border-rose-200 text-rose-500 rounded text-xs">超级管理员</span>{% endif %}
                         {% else %}
-                        <span class="text-gray-400 italic">未绑定</span>
+                        <span class="text-slate-400 italic">未绑定</span>
                         {% endif %}
                     </dd>
                 </div>
+                <div>
+                    <dt class="text-xs text-slate-400 uppercase tracking-[0.3em]">手机号码</dt>
+                    <dd class="mt-1 font-medium text-slate-900">{{ emp.phone }}</dd>
+                </div>
+                <div>
+                    <dt class="text-xs text-slate-400 uppercase tracking-[0.3em]">电子邮箱</dt>
+                    <dd class="mt-1 font-medium text-slate-900">{{ emp.email }}</dd>
+                </div>
             </dl>
-        </div>
+        </section>
 
-        <!-- 侧边栏：时间轴/绩效 -->
-        <div class="space-y-6">
-            <div class="bg-white rounded-lg shadow p-6">
-                <h3 class="font-bold text-gray-800 mb-4 pb-2 border-b border-gray-100">近期绩效</h3>
+        <!-- 近期绩效 -->
+        <section class="space-y-6">
+            <div class="bg-white rounded-3xl shadow p-6 space-y-4">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-base font-semibold text-slate-900">近期绩效</h3>
+                    <span class="text-xs uppercase tracking-[0.4em] text-slate-400">最新</span>
+                </div>
                 <div class="space-y-4">
                     {% for perf in emp.performanceevaluation_set.all|slice:":3" %}
-                    <div class="flex justify-between items-center text-sm">
-                        <span class="text-gray-600">{{ perf.cycle.cycle_name }}</span>
+                    <div class="flex items-center justify-between text-sm">
+                        <div>
+                            <p class="text-slate-500">{{ perf.cycle.cycle_name }}</p>
+                            <p class="text-xs text-slate-400">{{ perf.final_score|default:"进行中" }}</p>
+                        </div>
                         <span
-                            class="font-bold {% if perf.final_score >= 90 %}text-green-600{% elif perf.final_score < 60 %}text-red-500{% endif %}">
+                            class="px-3 py-1 rounded-full text-xs font-semibold {% if perf.final_score >= 90 %}bg-emerald-100 text-emerald-700{% elif perf.final_score < 60 %}bg-rose-100 text-rose-700{% else %}bg-slate-100 text-slate-700{% endif %}">
                             {{ perf.final_score|default:"进行中" }}
                         </span>
                     </div>
                     {% empty %}
-                    <div class="text-gray-400 text-xs text-center py-4">暂无记录</div>
+                    <div class="text-xs text-center text-slate-400">暂无记录</div>
                     {% endfor %}
                 </div>
             </div>
-        </div>
+        </section>
     </div>
 </div>
 {% endblock %}

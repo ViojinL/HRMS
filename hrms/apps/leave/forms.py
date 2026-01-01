@@ -20,6 +20,8 @@ class LeaveApplyForm(forms.ModelForm):
             'attachment_url': forms.TextInput(attrs={'class': 'form-input block w-full mt-1'}),
         }
 
+    # leave_type choices come from LeaveApply.LEAVE_TYPE_CHOICES
+
     def clean(self):
         cleaned_data = super().clean()
         start = cleaned_data.get('start_time')

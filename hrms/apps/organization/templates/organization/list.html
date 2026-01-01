@@ -41,10 +41,12 @@
                     <td class="py-3 px-4 text-gray-500">{{ org.parent_org.org_name|default:"-" }}</td>
                     <td class="py-3 px-4">{{ org.manager_emp.emp_name|default:"-" }}</td>
                     <td class="py-3 px-4">
-                        {% if org.status == 'active' %}
-                        <span class="text-green-600 bg-green-50 px-2 py-0.5 rounded text-xs">生效中</span>
+                        {% if org.status == 'enabled' %}
+                        <span class="text-green-600 bg-green-50 px-2 py-0.5 rounded text-xs">生效</span>
+                        {% elif org.status == 'disabled' %}
+                        <span class="text-gray-500 bg-gray-100 px-2 py-0.5 rounded text-xs">已禁用</span>
                         {% else %}
-                        <span class="text-gray-500 bg-gray-100 px-2 py-0.5 rounded text-xs">失效</span>
+                        <span class="text-sm text-gray-500 bg-gray-100 px-2 py-0.5 rounded text-xs">{{ org.get_status_display }}</span>
                         {% endif %}
                     </td>
                     <td class="py-3 px-4 text-right space-x-2">

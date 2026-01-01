@@ -4,7 +4,6 @@ import uuid
 class BaseModel(models.Model):
     """
     基础模型，包含所有表公用的字段
-    对应《HRMS 开发规则文档》 3.1.1 基础字段规范
     """
     id = models.CharField(
         primary_key=True,

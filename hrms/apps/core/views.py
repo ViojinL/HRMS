@@ -6,14 +6,22 @@ from apps.leave.models import LeaveApply
 from apps.performance.models import PerformanceEvaluation
 from apps.attendance.models import Attendance
 from apps.audit.models import AuditLog
+from apps.employee.models import Employee
 
 class DashboardView(LoginRequiredMixin, TemplateView):
     template_name = 'core/dashboard.html'
+
+    def _format_time(self, value, fmt='%H:%M'):
+        if not value:
+            return '--:--'
+        return timezone.localtime(value).strftime(fmt)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user = self.request.user
         emp = getattr(user, 'employee', None)
+        context['user_display_name'] = emp.emp_name if emp and emp.emp_name else user.username
+        context['today_attendance_display'] = '--:--'
         
         # 1. 问候语时间段
         hour = timezone.now().hour
@@ -31,7 +39,6 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         if not emp:
             if user.is_superuser:
                 # 获取系统级统计数据
-                from apps.employee.models import Employee
                 from apps.organization.models import Organization
                 from django.contrib.auth.models import User as AuthUser
                 
@@ -54,6 +61,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             emp__manager_emp=emp, 
             apply_status='pending'
         ).count()
+        is_manager = Employee.objects.filter(manager_emp=emp).exists()
         
         # 待办绩效评价 (自评 或 他评)
         pending_perf = PerformanceEvaluation.objects.filter(
@@ -64,14 +72,22 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         
         context['total_todos'] = pending_approvals + pending_perf
         context['pending_approvals_count'] = pending_approvals
+        context['show_pending_approvals'] = is_manager
         
         # 3. 今日考勤
         today = timezone.now().date()
         today_attendance = Attendance.objects.filter(emp=emp, attendance_date=today).first()
         context['today_attendance'] = today_attendance
+        context['today_attendance_display'] = self._format_time(
+            today_attendance.check_in_time if today_attendance else None
+        )
+
 
         # 4. 我的最近申请
-        context['recent_leaves'] = LeaveApply.objects.filter(emp=emp).order_by('-create_time')[:5]
+        leaves = list(LeaveApply.objects.filter(emp=emp).order_by('-create_time')[:5])
+        for leave in leaves:
+            leave.leave_type_label = leave.get_leave_type_display()
+        context['recent_leaves'] = leaves
 
         # 5. 为了填充右侧动态，获取最近的公开操作或通知 (这里暂用自己的审计记录)
         context['recent_activities'] = AuditLog.objects.filter(oper_user=user.username).order_by('-oper_time')[:8]

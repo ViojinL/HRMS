@@ -43,58 +43,85 @@
                 <span class="font-medium">工作台</span>
             </a>
 
-            <!-- 组织与人员 (仅HR/管理员) -->
+            <!-- 组织与人才 -->
             {% if is_hr or is_admin %}
-            <div class="pt-4 pb-2 px-4 text-xs font-semibold text-gray-400 uppercase">组织与人员</div>
+            <div class="pt-4 pb-2 px-4 text-xs font-semibold text-gray-400 uppercase">组织与人才</div>
             <a href="{% url 'organization:list' %}"
                 class="flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-primary rounded-lg transition-colors {% if request.resolver_match.app_name == 'organization' %}bg-blue-50 text-primary{% endif %}">
                 <i class="fa-solid fa-sitemap w-5 text-center"></i>
                 <span>组织架构</span>
             </a>
             <a href="{% url 'employee:list' %}"
-                class="flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-primary rounded-lg transition-colors {% if request.resolver_match.app_name == 'employee' %}bg-blue-50 text-primary{% endif %}">
+                class="flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-primary rounded-lg transition-colors {% if request.resolver_match.app_name == 'employee' and request.resolver_match.url_name != 'sql_search' %}bg-blue-50 text-primary{% endif %}">
                 <i class="fa-solid fa-user-tie w-5 text-center"></i>
                 <span>员工档案</span>
             </a>
             {% endif %}
 
-            <!-- 考勤与请假 (全员) -->
-            <div class="pt-4 pb-2 px-4 text-xs font-semibold text-gray-400 uppercase">考勤管理</div>
+            {% if is_manager or is_hr or is_admin %}
+            <div class="pt-4 pb-2 px-4 text-xs font-semibold text-gray-400 uppercase">组织洞察</div>
+            <a href="{% url 'employee:sql_search' %}"
+                class="flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-primary rounded-lg transition-colors {% if request.resolver_match.app_name == 'employee' and request.resolver_match.url_name == 'sql_search' %}bg-blue-50 text-primary{% endif %}">
+                <i class="fa-solid fa-users w-5 text-center"></i>
+                <span>部门员工查询</span>
+            </a>
+            {% endif %}
+
+            <!-- 考勤中心 -->
+            <div class="pt-4 pb-2 px-4 text-xs font-semibold text-gray-400 uppercase">考勤中心</div>
+            <a href="{% url 'attendance:dashboard' %}"
+                class="flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-primary rounded-lg transition-colors  {% if request.resolver_match.app_name == 'attendance' and request.resolver_match.url_name == 'dashboard' %}bg-blue-50 text-primary{% endif %}">
+                <i class="fa-solid fa-clock w-5 text-center"></i>
+                <span>我的考勤</span>
+            </a>
+            {% if is_admin %}
+            <a href="{% url 'attendance:shift_settings' %}"
+                class="flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-primary rounded-lg transition-colors  {% if request.resolver_match.url_name == 'shift_settings' %}bg-blue-50 text-primary{% endif %}">
+                <i class="fa-solid fa-stopwatch-20 w-5 text-center"></i>
+                <span>班次设置</span>
+            </a>
+            {% endif %}
+
+            <!-- 请假与审批 -->
+            <div class="pt-4 pb-2 px-4 text-xs font-semibold text-gray-400 uppercase">请假与审批</div>
             <a href="{% url 'leave:list' %}"
                 class="flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-primary rounded-lg transition-colors {% if request.resolver_match.url_name == 'list' %}bg-blue-50 text-primary{% endif %}">
                 <i class="fa-solid fa-mug-hot w-5 text-center"></i>
                 <span>请假中心</span>
             </a>
-
             {% if is_manager or is_hr or is_admin %}
             <a href="{% url 'leave:approval_list' %}"
                 class="flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-primary rounded-lg transition-colors {% if request.resolver_match.url_name == 'approval_list' %}bg-blue-50 text-primary{% endif %}">
                 <i class="fa-solid fa-list-check w-5 text-center"></i>
                 <span>审批待办</span>
             </a>
+            <a href="{% url 'leave:sql_search' %}"
+                class="flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-primary rounded-lg transition-colors {% if request.resolver_match.app_name == 'leave' and request.resolver_match.url_name == 'sql_search' %}bg-blue-50 text-primary{% endif %}">
+                <i class="fa-solid fa-filter w-5 text-center"></i>
+                <span>请假记录查询</span>
+            </a>
             {% endif %}
 
-            <a href="{% url 'attendance:dashboard' %}"
-                class="flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-primary rounded-lg transition-colors  {% if request.resolver_match.app_name == 'attendance' %}bg-blue-50 text-primary{% endif %}">
-                <i class="fa-solid fa-clock w-5 text-center"></i>
-                <span>我的考勤</span>
-            </a>
-
-            <!-- 绩效管理(全员) -->
-            <div class="pt-4 pb-2 px-4 text-xs font-semibold text-gray-400 uppercase">绩效管理</div>
+            <!-- 绩效与成长 -->
+            <div class="pt-4 pb-2 px-4 text-xs font-semibold text-gray-400 uppercase">绩效与成长</div>
             <a href="{% url 'performance:dashboard' %}"
                 class="flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-primary rounded-lg transition-colors  {% if request.resolver_match.app_name == 'performance' %}bg-purple-50 text-purple-600{% endif %}">
                 <i class="fa-solid fa-chart-line w-5 text-center"></i>
                 <span>绩效考核</span>
             </a>
 
-            <!-- 系统管理 (仅管理员) -->
+            <!-- 系统治理 (仅管理员) -->
             {% if is_admin %}
-            <div class="pt-4 pb-2 px-4 text-xs font-semibold text-gray-400 uppercase">系统</div>
+            <div class="pt-4 pb-2 px-4 text-xs font-semibold text-gray-400 uppercase">系统治理</div>
             <a href="{% url 'audit:list' %}"
                 class="flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-primary rounded-lg transition-colors {% if request.resolver_match.app_name == 'audit' %}bg-blue-50 text-primary{% endif %}">
-                <i class="fa-solid fa-shield-halved w-5 text-center"></i>
+                <i class="fa-solid fa-clipboard-list w-5 text-center"></i>
                 <span>审计日志</span>
+            </a>
+            <a href="{% url 'config:dashboard' %}"
+                class="flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-primary rounded-lg transition-colors {% if request.resolver_match.app_name == 'config' %}bg-blue-50 text-primary{% endif %}">
+                <i class="fa-solid fa-sliders w-5 text-center"></i>
+                <span>参数配置</span>
             </a>
             {% endif %}
         </nav>

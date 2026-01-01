@@ -23,7 +23,6 @@ class Employee(BaseModel):
     EMP_STATUS_CHOICES = [
         ('probation', '试用期'),
         ('active', '在职'),
-        ('resigning', '待离职'),
         ('resigned', '离职'),
         ('suspended', '停薪留职'),
     ]

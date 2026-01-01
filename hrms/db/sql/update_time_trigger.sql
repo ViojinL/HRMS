@@ -1,4 +1,4 @@
--- 通用更新时间触发器函数 (对应规则文档 3.1.2)
+
 CREATE OR REPLACE FUNCTION update_modified_column()
 RETURNS TRIGGER AS $$
 BEGIN

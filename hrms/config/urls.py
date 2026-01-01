@@ -24,5 +24,6 @@ urlpatterns = [
     path('employee/', include('apps.employee.urls')),
     path('attendance/', include('apps.attendance.urls')),
     path('audit/', include('apps.audit.urls')),
+    path('config/', include('apps.config.urls')),
     path('', include('apps.core.urls')), # 将根路径交给 core app 处理
 ]

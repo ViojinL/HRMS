@@ -11,44 +11,44 @@
             class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg shadow-lg p-6 text-white transform hover:scale-105 transition-transform">
             <div class="flex justify-between items-start">
                 <div>
-                    <h3 class="text-lg font-bold">待我自评</h3>
-                    <p class="text-blue-100 text-sm mt-1">当前进行中的考核</p>
+                    <h3 class="text-lg font-bold">我的绩效</h3>
+                    <p class="text-blue-100 text-sm mt-1">查看我的绩效信息</p>
                 </div>
                 <div class="bg-white/20 p-2 rounded-lg">
-                    <i class="fa-solid fa-user-pen text-2xl"></i>
+                    <i class="fa-solid fa-chart-line text-2xl"></i>
                 </div>
             </div>
             <div class="mt-4">
                 <a href="{% url 'performance:my_list' %}"
-                    class="inline-block bg-white text-blue-600 px-4 py-2 rounded font-semibold text-sm hover:bg-gray-50 transition-colors">去自评</a>
+                    class="inline-block bg-white text-blue-600 px-4 py-2 rounded font-semibold text-sm hover:bg-gray-50 transition-colors">查看</a>
             </div>
         </div>
 
-        {% if is_manager or is_admin %}
+        {% if is_performance_admin or is_admin %}
         <div
             class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg shadow-lg p-6 text-white transform hover:scale-105 transition-transform">
             <div class="flex justify-between items-start">
                 <div>
-                    <h3 class="text-lg font-bold">团队考核</h3>
-                    <p class="text-purple-100 text-sm mt-1">下属绩效评分</p>
+                    <h3 class="text-lg font-bold">评估管理</h3>
+                    <p class="text-purple-100 text-sm mt-1">绩效部门统一评分/状态</p>
                 </div>
                 <div class="bg-white/20 p-2 rounded-lg">
-                    <i class="fa-solid fa-users-viewfinder text-2xl"></i>
+                    <i class="fa-solid fa-clipboard-list text-2xl"></i>
                 </div>
             </div>
             <div class="mt-4">
-                <a href="{% url 'performance:team_list' %}"
-                    class="inline-block bg-white text-purple-600 px-4 py-2 rounded font-semibold text-sm hover:bg-gray-50 transition-colors">去评分</a>
+                <a href="{% url 'performance:manage_list' %}"
+                    class="inline-block bg-white text-purple-600 px-4 py-2 rounded font-semibold text-sm hover:bg-gray-50 transition-colors">进入</a>
             </div>
         </div>
         {% endif %}
 
-        {% if is_hr or is_admin %}
+        {% if is_performance_admin or is_admin %}
         <div class="bg-white rounded-lg shadow p-6 border border-gray-100">
             <div class="flex justify-between items-start">
                 <div>
                     <h3 class="text-lg font-bold text-gray-800">发起新周期</h3>
-                    <p class="text-gray-500 text-sm mt-1">仅HR/管理员可用</p>
+                    <p class="text-gray-500 text-sm mt-1">仅CFO/绩效部门/管理员可用</p>
                 </div>
                 <div class="bg-gray-100 p-2 rounded-lg text-gray-500">
                     <i class="fa-solid fa-flag-checkered text-2xl"></i>
@@ -83,8 +83,7 @@
                     <tr class="border-b border-gray-50 last:border-0 hover:bg-gray-50">
                         <td class="py-3 px-4 font-medium">{{ cycle.cycle_name }}</td>
                         <td class="py-3 px-4">
-                            <span class="bg-gray-100 px-2 py-1 rounded text-xs">{{ cycle.get_cycle_type_display
-                                }}</span>
+                            <span class="bg-gray-100 px-2 py-1 rounded text-xs">{{ cycle.cycle_type_label }}</span>
                         </td>
                         <td class="py-3 px-4 font-mono text-gray-500">
                             {{ cycle.start_time|date:"Y-m-d" }} ~ {{ cycle.end_time|date:"Y-m-d" }}
@@ -93,11 +92,33 @@
                             {{ cycle.org.org_name|default:"全公司" }}
                         </td>
                         <td class="py-3 px-4">
-                            {% if cycle.status == 'in_progress' %}
-                            <span class="text-green-600 flex items-center gap-1"><i class="fa-solid fa-play"></i>
-                                进行中</span>
+                            {% if is_performance_admin or is_admin %}
+                            <div class="flex items-start gap-2">
+                                <div>
+                                    <form method="post" action="{% url 'performance:cycle_status' cycle.pk %}" class="flex items-center gap-2">
+                                        {% csrf_token %}
+                                        <select name="status" class="form-select text-sm border-gray-200">
+                                            {% for value,label in status_choices %}
+                                            <option value="{{ value }}" {% if value == cycle.status %}selected{% endif %}>{{ label }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        <button type="submit" class="px-3 py-1 text-xs bg-gray-800 text-white rounded hover:bg-black">保存</button>
+                                    </form>
+                                    <p class="text-xs text-gray-400 mt-1">保存后会同步评估管理列表的状态</p>
+                                </div>
+                                <form method="post" action="{% url 'performance:cycle_delete' cycle.pk %}" onsubmit="return confirm('确定要删除这个绩效周期吗？这将同时删除所有相关的评估记录，且不可恢复。');">
+                                    {% csrf_token %}
+                                    <button type="submit" class="p-1 text-gray-400 hover:text-red-600 transition-colors" title="删除周期">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
                             {% else %}
-                            <span class="text-gray-400">{{ cycle.get_status_display }}</span>
+                                {% if cycle.status == 'in_progress' %}
+                                <span class="text-green-600 flex items-center gap-1"><i class="fa-solid fa-play"></i> 进行中</span>
+                                {% else %}
+                                <span class="text-gray-400">{{ cycle.status_label }}</span>
+                                {% endif %}
                             {% endif %}
                         </td>
                     </tr>

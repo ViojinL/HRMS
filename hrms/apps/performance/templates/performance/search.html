@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% block title %}绩效查找 - HRMS{% endblock %}
+{% block page_title %}绩效查找（原生 SQL）{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-lg shadow p-6 space-y-6">
+    <form method="get" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">部门/组织</label>
+            <select name="org" class="form-select w-full">
+                <option value="">全公司</option>
+                {% for org in orgs %}
+                <option value="{{ org.id }}" {% if filters.org == org.id %}selected{% endif %}>{{ org.org_name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">开始时间</label>
+            <input type="datetime-local" name="start" value="{{ filters.start }}" class="form-input w-full" placeholder="yyyy-mm-ddThh:mm" />
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">结束时间</label>
+            <input type="datetime-local" name="end" value="{{ filters.end }}" class="form-input w-full" placeholder="yyyy-mm-ddThh:mm" />
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">用户关键字</label>
+            <input type="text" name="keyword" value="{{ filters.keyword }}" placeholder="姓名/账号 (模糊)" class="form-input w-full" />
+        </div>
+        <div class="md:col-span-4 flex gap-3">
+            <button type="submit" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-600">查找</button>
+            <span class="text-sm text-gray-500 self-center">最多返回 {{ max_rows }} 条，当前 {{ result_count }} 条</span>
+        </div>
+    </form>
+</div>
+
+<div class="bg-white rounded-lg shadow p-6 mt-6">
+    <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-bold text-gray-700">查询结果</h3>
+        <span class="text-sm text-gray-500">按周期时间倒序</span>
+    </div>
+
+    <div class="overflow-x-auto">
+        <table class="w-full text-left">
+            <thead>
+                <tr class="text-gray-500 border-b border-gray-100 text-sm">
+                    <th class="py-3 px-4">周期</th>
+                    <th class="py-3 px-4">员工</th>
+                    <th class="py-3 px-4">组织</th>
+                    <th class="py-3 px-4">出勤/请假</th>
+                    <th class="py-3 px-4">规则得分</th>
+                    <th class="py-3 px-4">最终得分</th>
+                    <th class="py-3 px-4">状态</th>
+                    <th class="py-3 px-4 text-right">操作</th>
+                </tr>
+            </thead>
+            <tbody class="text-sm text-gray-700">
+                {% for row in results %}
+                <tr class="hover:bg-gray-50 border-b border-gray-50 last:border-0">
+                    <td class="py-3 px-4">
+                        <div class="font-medium">{{ row.cycle_name }}</div>
+                        <div class="text-xs text-gray-500">{{ row.start_time|date:"Y-m-d" }} ~ {{ row.end_time|date:"Y-m-d" }}</div>
+                    </td>
+                    <td class="py-3 px-4">
+                        <div class="font-medium">{{ row.emp_name }}</div>
+                        <div class="text-xs text-gray-500">工号 {{ row.emp_id }}</div>
+                    </td>
+                    <td class="py-3 px-4">{{ row.org_name|default:"-" }}</td>
+                    <td class="py-3 px-4 text-gray-500">
+                        {% if row.attendance_rate_display and row.leave_rate_display %}
+                        出勤 {{ row.attendance_rate_display }} / 请假 {{ row.leave_rate_display }}
+                        {% else %}
+                        暂无数据
+                        {% endif %}
+                    </td>
+                    <td class="py-3 px-4 font-medium">{{ row.rule_score|default:"-" }}</td>
+                    <td class="py-3 px-4 font-bold">{{ row.final_score|default:"-" }}</td>
+                    <td class="py-3 px-4">{{ row.status_label|default:row.evaluation_status }}</td>
+                    <td class="py-3 px-4 text-right">
+                        <a href="{% url 'performance:manage_edit' row.eval_id %}"
+                            class="text-primary hover:underline text-sm">去评分</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="py-10 text-center text-gray-400">未找到匹配结果</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,176 @@
+{% extends 'base.html' %}
+
+{% block title %}部门员工查询(SQL) - HRMS{% endblock %}
+{% block page_title %}部门员工查询（原生SQL）{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-lg shadow p-6">
+  <div class="mb-4 text-sm text-gray-500">仅允许查询本人部门及其下级部门；下级部门无法查询上级部门。</div>
+
+  <form method="get" class="grid grid-cols-1 md:grid-cols-6 gap-3 mb-6">
+    <div class="md:col-span-2">
+      <label class="block text-xs text-gray-500 mb-1">关键字</label>
+      <input name="keyword" value="{{ filters.keyword }}" placeholder="姓名/工号/邮箱"
+        class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-primary text-sm" />
+    </div>
+
+    <div>
+      <label class="block text-xs text-gray-500 mb-1">工号(精确)</label>
+      <input name="emp_id" value="{{ filters.emp_id }}" placeholder="例如：EMP1001"
+        class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-primary text-sm" />
+    </div>
+
+    <div>
+      <label class="block text-xs text-gray-500 mb-1">组织</label>
+      <select name="org" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
+        <option value="">全部（含下级）</option>
+        {% for o in orgs %}
+          <option value="{{ o.id }}" {% if filters.org == o.id %}selected{% endif %}>{{ o.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div>
+      <label class="block text-xs text-gray-500 mb-1">邮箱包含</label>
+      <input name="email" value="{{ filters.email }}" placeholder="@hrms.com"
+        class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-primary text-sm" />
+    </div>
+
+    <div>
+      <label class="block text-xs text-gray-500 mb-1">员工状态</label>
+      <select name="emp_status" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
+        <option value="">全部</option>
+        {% for v, label in emp_status_choices %}
+          <option value="{{ v }}" {% if filters.emp_status == v %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div>
+      <label class="block text-xs text-gray-500 mb-1">性别</label>
+      <select name="gender" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
+        <option value="">全部</option>
+        {% for v, label in gender_choices %}
+          <option value="{{ v }}" {% if filters.gender == v %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div>
+      <label class="block text-xs text-gray-500 mb-1">雇佣类型</label>
+      <select name="employment_type" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
+        <option value="">全部</option>
+        {% for v, label in employment_type_choices %}
+          <option value="{{ v }}" {% if filters.employment_type == v %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div>
+      <label class="block text-xs text-gray-500 mb-1">岗位包含</label>
+      <input name="position" value="{{ filters.position }}" placeholder="例如：经理/开发"
+        class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-primary text-sm" />
+    </div>
+
+    <div>
+      <label class="block text-xs text-gray-500 mb-1">直属上级(姓名/工号)</label>
+      <input name="manager" value="{{ filters.manager }}" placeholder="例如：CFO/EMP2001"
+        class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-primary text-sm" />
+    </div>
+
+    <div>
+      <label class="block text-xs text-gray-500 mb-1">手机号包含</label>
+      <input name="phone" value="{{ filters.phone }}" placeholder="138"
+        class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-primary text-sm" />
+    </div>
+
+    <div>
+      <label class="block text-xs text-gray-500 mb-1">入职起</label>
+      <input type="date" name="hire_start" value="{{ filters.hire_start }}"
+        class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm" />
+    </div>
+
+    <div>
+      <label class="block text-xs text-gray-500 mb-1">入职止</label>
+      <input type="date" name="hire_end" value="{{ filters.hire_end }}"
+        class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm" />
+    </div>
+
+    <div>
+      <label class="block text-xs text-gray-500 mb-1">出生起</label>
+      <input type="date" name="birth_start" value="{{ filters.birth_start }}"
+        class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm" />
+    </div>
+
+    <div>
+      <label class="block text-xs text-gray-500 mb-1">出生止</label>
+      <input type="date" name="birth_end" value="{{ filters.birth_end }}"
+        class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm" />
+    </div>
+
+    <div class="md:col-span-2">
+      <label class="block text-xs text-gray-500 mb-1">身份证号包含</label>
+      <input name="id_card" value="{{ filters.id_card }}" placeholder="后四位/片段"
+        class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-primary text-sm" />
+    </div>
+
+    <div class="md:col-span-6 flex items-center gap-2">
+      <button type="submit" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors text-sm">
+        查询
+      </button>
+      <a href="{% url 'employee:sql_search' %}" class="px-4 py-2 rounded-lg border border-gray-200 hover:bg-gray-50 text-sm">
+        重置
+      </a>
+      <div class="ml-auto text-sm text-gray-500">结果：{{ result_count }} 条（最多 {{ max_rows }} 条）</div>
+    </div>
+  </form>
+
+  <div class="overflow-x-auto">
+    <table class="w-full text-left border-collapse">
+      <thead>
+        <tr class="text-gray-500 border-b border-gray-100 bg-gray-50/50">
+          <th class="py-3 px-4 font-medium">姓名/工号</th>
+          <th class="py-3 px-4 font-medium">组织</th>
+          <th class="py-3 px-4 font-medium">岗位</th>
+          <th class="py-3 px-4 font-medium">雇佣/状态</th>
+          <th class="py-3 px-4 font-medium">入职/出生</th>
+          <th class="py-3 px-4 font-medium">直属上级</th>
+          <th class="py-3 px-4 font-medium">联系方式</th>
+        </tr>
+      </thead>
+      <tbody class="text-sm text-gray-700">
+        {% for r in results %}
+          <tr class="hover:bg-gray-50 border-b border-gray-50 last:border-0 transition-colors">
+            <td class="py-3 px-4">
+              <div class="font-medium text-gray-900">{{ r.emp_name }}</div>
+              <div class="text-xs text-gray-400 font-mono">{{ r.emp_id }}</div>
+            </td>
+            <td class="py-3 px-4">{{ r.org_name }}</td>
+            <td class="py-3 px-4">{{ r.position }}</td>
+            <td class="py-3 px-4">
+              <div class="text-xs text-gray-700">{{ r.employment_type }}</div>
+              <div class="text-xs text-gray-500">{{ r.emp_status }}</div>
+            </td>
+            <td class="py-3 px-4">
+              <div class="text-xs text-gray-700 font-mono">{{ r.hire_date|date:"Y-m-d" }}</div>
+              <div class="text-xs text-gray-500 font-mono">{{ r.birth_date|date:"Y-m-d" }}</div>
+            </td>
+            <td class="py-3 px-4">
+              <div class="text-xs text-gray-700">{{ r.manager_emp_name|default:"--" }}</div>
+              <div class="text-xs text-gray-400 font-mono">{{ r.manager_emp_code|default:"" }}</div>
+            </td>
+            <td class="py-3 px-4">
+              <div class="text-xs text-gray-500">{{ r.phone }}</div>
+              <div class="text-xs text-gray-500">{{ r.email }}</div>
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="7" class="py-12 text-center text-gray-400">没有找到符合条件的数据</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

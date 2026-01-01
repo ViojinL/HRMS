@@ -16,10 +16,10 @@
         <select name="module"
             class="border border-gray-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-primary bg-white">
             <option value="">所有模块</option>
-            <option value="系统认证" {% if request.GET.module=='系统认证' %}selected{% endif %}>系统认证</option>
-            <option value="请假管理" {% if request.GET.module=='请假管理' %}selected{% endif %}>请假管理</option>
-            <option value="绩效管理" {% if request.GET.module=='绩效管理' %}selected{% endif %}>绩效管理</option>
-            <option value="考勤管理" {% if request.GET.module=='考勤管理' %}selected{% endif %}>考勤管理</option>
+            <option value="系统认证" {% if request.GET.module == "系统认证" %}selected{% endif %}>系统认证</option>
+            <option value="请假管理" {% if request.GET.module == "请假管理" %}selected{% endif %}>请假管理</option>
+            <option value="绩效管理" {% if request.GET.module == "绩效管理" %}selected{% endif %}>绩效管理</option>
+            <option value="考勤管理" {% if request.GET.module == "考勤管理" %}selected{% endif %}>考勤管理</option>
         </select>
 
         <button type="submit"

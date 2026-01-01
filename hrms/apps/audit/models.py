@@ -18,7 +18,7 @@ class AuditLog(models.Model):
 
     id = models.BigAutoField(primary_key=True)
     table_name = models.CharField(max_length=50, verbose_name="模块/表名", null=True, blank=True)
-    record_id = models.CharField(max_length=50, verbose_name="记录ID/URL", null=True, blank=True)
+    record_id = models.CharField(max_length=200, verbose_name="记录ID/URL", null=True, blank=True)
     oper_type = models.CharField(max_length=20, choices=OPER_TYPE_CHOICES, verbose_name="操作类型")
     summary = models.CharField(max_length=200, null=True, blank=True, verbose_name="操作摘要")
     old_data = models.JSONField(null=True, blank=True, verbose_name="操作前数据")

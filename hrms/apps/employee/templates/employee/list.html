@@ -58,28 +58,46 @@
                     <td class="py-3 px-4">{{ emp.position }}</td>
                     <td class="py-3 px-4 font-mono text-gray-500">{{ emp.hire_date|date:"Y-m-d" }}</td>
                     <td class="py-3 px-4">
-                        {% if emp.emp_status == 'active' %}
+                        {% with status=emp.emp_status %}
+                        {% if status == 'active' %}
                         <span
                             class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
-                            正式
+                            {{ emp.get_emp_status_display }}
                         </span>
-                        {% elif emp.emp_status == 'probation' %}
+                        {% elif status == 'probation' %}
                         <span
                             class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
-                            试用期
+                            {{ emp.get_emp_status_display }}
                         </span>
-                        {% else %}
+                        {% elif status == 'suspended' %}
+                        <span
+                            class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800">
+                            {{ emp.get_emp_status_display }}
+                        </span>
+                        {% elif status == 'resigned' %}
                         <span
                             class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
                             {{ emp.get_emp_status_display }}
                         </span>
+                        {% else %}
+                        <span
+                            class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-50 text-gray-600">
+                            {{ emp.get_emp_status_display }}
+                        </span>
                         {% endif %}
+                        {% endwith %}
                     </td>
                     <td class="py-3 px-4 text-right pr-6">
-                        <a href="{% url 'employee:detail' emp.pk %}"
-                            class="text-gray-400 hover:text-primary transition-colors">
-                            <i class="fa-solid fa-angle-right"></i>
-                        </a>
+                        <div class="flex items-center justify-end gap-2">
+                            <a href="{% url 'employee:detail' emp.pk %}"
+                                class="text-gray-400 hover:text-primary transition-colors text-xs">
+                                详情
+                            </a>
+                            <a href="{% url 'employee:edit' emp.pk %}"
+                                class="text-primary hover:underline text-xs">
+                                编辑
+                            </a>
+                        </div>
                     </td>
                 </tr>
                 {% empty %}

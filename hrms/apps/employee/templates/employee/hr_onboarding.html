@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+
+{% block title %}HR 入职办理 - HRMS{% endblock %}
+{% block page_title %}HR 入职办事处{% endblock %}
+
+{% block content %}
+<div class="grid gap-6 md:grid-cols-3">
+    <div class="md:col-span-2 space-y-4">
+        <div class="bg-white rounded-2xl shadow p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-800">新员工入职登记</h3>
+                <span class="text-xs text-gray-400">仅 HR 人员可使用</span>
+            </div>
+            <form method="post" class="space-y-4">
+                {% csrf_token %}
+                <div class="grid gap-4 md:grid-cols-2">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600">姓名 *</label>
+                        {{ form.emp_name }}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600">性别 *</label>
+                        {{ form.gender }}
+                    </div>
+                </div>
+                <div class="grid gap-4 md:grid-cols-2">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600">身份证号 *</label>
+                        {{ form.id_card }}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600">手机号 *</label>
+                        {{ form.phone }}
+                    </div>
+                </div>
+                <div class="grid gap-4 md:grid-cols-2">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600">邮箱 *</label>
+                        {{ form.email }}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600">出生日期 *</label>
+                        {{ form.birth_date }}
+                    </div>
+                </div>
+                <div class="grid gap-4 md:grid-cols-3">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600">所属部门 *</label>
+                        {{ form.org }}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600">岗位 *</label>
+                        {{ form.position }}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600">入职日期 *</label>
+                        {{ form.hire_date }}
+                    </div>
+                </div>
+                <div class="grid gap-4 md:grid-cols-3">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600">雇佣类型 *</label>
+                        {{ form.employment_type }}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600">员工状态 *</label>
+                        {{ form.emp_status }}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600">直接上级</label>
+                        {{ form.manager_emp }}
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-600">初始登录密码</label>
+                    {{ form.initial_password }}
+                    <p class="text-xs text-gray-400">不填系统会自动生成包含字母+数字的安全密码。</p>
+                </div>
+                <div class="flex justify-end">
+                    <button type="submit"
+                        class="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-white font-semibold shadow-lg hover:shadow-xl transition">保存并创建账号</button>
+                </div>
+            </form>
+            {% if last_credentials %}
+            <div class="mt-6 rounded-xl bg-blue-50 border border-blue-100 p-4">
+                <p class="text-sm text-blue-700">上一次创建的账户：{{ last_credentials.username }}</p>
+                <p class="text-sm text-blue-700">初始密码：<span class="font-bold">{{ last_credentials.password }}</span></p>
+                <p class="text-xs text-blue-500">请务必在首次登录后提示员工修改密码。</p>
+            </div>
+            {% endif %}
+        </div>
+        <div class="bg-white rounded-2xl shadow p-6 space-y-4">
+            <div class="flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-800">最近完成入职</h3>
+                <a href="{% url 'employee:list' %}" class="text-xs text-primary hover:underline">查看全部档案</a>
+            </div>
+            <div class="space-y-3">
+                {% for emp in recent_onboardings %}
+                <div class="border border-gray-100 rounded-xl p-4 flex items-center justify-between gap-4">
+                    <div>
+                        <p class="text-sm font-medium text-gray-900">{{ emp.emp_name }} · {{ emp.position }}</p>
+                        <p class="text-xs text-gray-500">{{ emp.emp_id }} · {{ emp.hire_date|date:"Y-m-d" }}</p>
+                    </div>
+                    <span class="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-500">{{ emp.get_emp_status_display }}</span>
+                </div>
+                {% empty %}
+                <p class="text-sm text-gray-400">尚无入职记录，提交表单可快速创建第一位员工。</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow p-6 space-y-4">
+        <div class="flex items-center justify-between">
+            <h3 class="text-lg font-semibold text-gray-800">待 HR 总监审批</h3>
+            <span class="text-xs text-gray-400">{{ pending_onboardings|length }} 位</span>
+        </div>
+        <div class="space-y-3">
+            {% for emp in pending_onboardings %}
+            <div class="border border-gray-100 rounded-xl p-4 space-y-2">
+                <div>
+                    <p class="text-sm font-semibold text-gray-900">{{ emp.emp_name }}</p>
+                    <p class="text-xs text-gray-400">工号 {{ emp.emp_id }} · {{ emp.position }}</p>
+                </div>
+                <div class="flex items-center justify-between gap-2">
+                    <span class="text-xs px-2 py-1 rounded-full bg-blue-50 text-blue-600">{{ emp.get_emp_status_display }}</span>
+                    {% if is_hr_director %}
+                    <form method="post" class="m-0">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="approve_onboarding">
+                        <input type="hidden" name="employee_pk" value="{{ emp.pk }}">
+                        <button type="submit"
+                            class="text-xs px-3 py-1 rounded-full border border-blue-200 text-blue-700 hover:bg-blue-50 transition">批准激活</button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+            {% empty %}
+            <p class="text-sm text-gray-400">当前无待激活入职，提交表单即可立刻生成账号。</p>
+            {% endfor %}
+        </div>
+        {% if not is_hr_director %}
+        <p class="text-xs text-gray-400">HR 总监可在此处批准已登记的员工完成正式激活。</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

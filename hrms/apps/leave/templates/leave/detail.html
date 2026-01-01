@@ -12,17 +12,24 @@
             <div class="flex justify-between items-start mb-6 pb-6 border-b border-gray-100">
                 <div>
                     <h1 class="text-xl font-bold text-gray-800 flex items-center gap-2">
-                        {{ leave.emp.emp_name }}的{{ leave.get_leave_type_display }}申请
-                        {% if leave.apply_status == 'pending' %}
-                        <span class="bg-yellow-100 text-yellow-700 text-xs px-2 py-1 rounded-full">待审批</span>
+                        {{ leave.emp.emp_name }}的{{ leave.leave_type_label }}申请
+                        {% if leave.apply_status == 'reviewing' %}
+                        <span class="bg-yellow-100 text-yellow-700 text-xs px-2 py-1 rounded-full">审核中</span>
                         {% elif leave.apply_status == 'approved' %}
                         <span class="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full">已批准</span>
                         {% elif leave.apply_status == 'rejected' %}
                         <span class="bg-red-100 text-red-700 text-xs px-2 py-1 rounded-full">已拒绝</span>
+                        {% elif leave.apply_status == 'completed' %}
+                        <span class="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-full">已完成</span>
                         {% endif %}
                     </h1>
-                    <p class="text-sm text-gray-500 mt-1">申请编号: {{ leave.id }} &bull; 提交于 {{
-                        leave.apply_time|date:"Y-m-d H:i" }}</p>
+                    <p class="text-sm text-gray-500 mt-1">申请编号: {{ leave.id }} &bull; 提交于
+                        {% if leave.apply_time_display %}
+                        {{ leave.apply_time_display }}
+                        {% else %}
+                        {{ leave.apply_time|date:"Y-m-d H:i" }}
+                        {% endif %}</p>
+                    <p class="text-xs text-gray-400 mt-1">审批人: {{ leave.approver_display|default:'尚未审批' }}</p>
                 </div>
             </div>
 
@@ -42,12 +49,13 @@
                 <div>
                     <span class="block text-sm font-medium text-gray-500 mb-2">时间安排</span>
                     <div class="bg-gray-50 rounded p-3 text-sm text-gray-700 border border-gray-100">
-                        {% for seg in leave.segments.all %}
+                        {% for seg in leave.segment_rows %}
                         <div class="flex justify-between items-center mb-1 last:mb-0">
-                            <span>{{ seg.leave_start_time|date:"Y-m-d H:i" }} ~ {{ seg.leave_end_time|date:"Y-m-d H:i"
-                                }}</span>
-                            <span class="text-gray-400">{{ seg.segment_days }} 天</span>
+                            <span>{{ seg.range_label }}</span>
+                            <span class="text-gray-400">{{ seg.days_label }}</span>
                         </div>
+                        {% empty %}
+                        <div class="text-xs text-gray-400">暂无时间段</div>
                         {% endfor %}
                     </div>
                 </div>
@@ -73,8 +81,8 @@
 
     <!-- 右侧：操作区 -->
     <div class="space-y-6">
-        <!-- 审批操作卡片 (仅当状态为 Pending 且 当前用户是审批人时显示) -->
-        {% if leave.apply_status == 'pending' %}
+        <!-- 审批操作卡片 (仅审核中 + 当前用户为审批人) -->
+        {% if leave.can_approve %}
         <div class="bg-white rounded-lg shadow p-6 border-t-4 border-primary">
             <h3 class="font-bold text-gray-800 mb-4">审批操作</h3>
             <p class="text-sm text-gray-500 mb-4">请仔细核对请假时间与事由后进行操作。</p>
@@ -93,6 +101,21 @@
         </div>
         {% endif %}
 
+        <!-- 本人操作：已批准后可标记完成 -->
+        {% if leave.can_complete %}
+        <div class="bg-white rounded-lg shadow p-6 border border-blue-100">
+            <h3 class="font-bold text-gray-800 mb-3">完成确认</h3>
+            <p class="text-sm text-gray-500 mb-4">请假结束后可将状态标记为“已完成”，便于后续统计。</p>
+            <form action="{% url 'leave:action' leave.pk %}" method="POST" class="space-y-3">
+                {% csrf_token %}
+                <button type="submit" name="action" value="complete"
+                    class="w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm font-medium">
+                    <i class="fa-solid fa-flag-checkered mr-1"></i> 标记为已完成
+                </button>
+            </form>
+        </div>
+        {% endif %}
+
         <!-- 流程信息 -->
         <div class="bg-white rounded-lg shadow p-6">
             <h3 class="font-bold text-gray-800 mb-4 text-sm">流程日志</h3>
@@ -101,23 +124,31 @@
                     <span
                         class="absolute -left-[31px] top-1 w-4 h-4 rounded-full bg-blue-100 border-2 border-primary"></span>
                     <h4 class="text-sm font-bold text-gray-800">提交申请</h4>
-                    <p class="text-xs text-gray-500 mt-1">{{ leave.apply_time|date:"Y-m-d H:i" }}</p>
+                    <p class="text-xs text-gray-500 mt-1">
+                        {% if leave.apply_time_display %}
+                        {{ leave.apply_time_display }}
+                        {% else %}
+                        {{ leave.apply_time|date:"Y-m-d H:i" }}
+                        {% endif %}
+                    </p>
                     <p class="text-xs text-gray-600 mt-1">{{ leave.emp.emp_name }} 提交了申请</p>
                 </div>
 
-                {% if leave.apply_status != 'pending' %}
+                {% if leave.apply_status != 'reviewing' %}
                 <div class="mb-8 ml-6 relative">
                     <span class="absolute -left-[31px] top-1 w-4 h-4 rounded-full 
                         {% if leave.apply_status == 'approved' %}bg-green-100 border-2 border-success
+                        {% elif leave.apply_status == 'completed' %}bg-blue-100 border-2 border-primary
                         {% elif leave.apply_status == 'rejected' %}bg-red-100 border-2 border-danger
                         {% else %}bg-gray-100 border-2 border-gray-300{% endif %}"></span>
                     <h4 class="text-sm font-bold text-gray-800">
                         {% if leave.apply_status == 'approved' %}已批准
+                        {% elif leave.apply_status == 'completed' %}已完成
                         {% elif leave.apply_status == 'rejected' %}已拒绝
                         {% else %}流程结束{% endif %}
                     </h4>
-                    <p class="text-xs text-gray-500 mt-1">{{ leave.update_time|date:"Y-m-d H:i" }}</p>
-                    <p class="text-xs text-gray-600 mt-1">处理人: 自动记录</p>
+                    <p class="text-xs text-gray-500 mt-1">{{ leave.update_time_display }}</p>
+                    <p class="text-xs text-gray-600 mt-1">处理人: {{ leave.approver_display|default:'自动记录' }}</p>
                 </div>
                 {% endif %}
             </div>

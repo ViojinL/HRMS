@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'apps.organization',
     'apps.employee',
     'apps.leave',
+    'apps.config',
     'apps.attendance',
     'apps.performance',
     'apps.audit',

@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+
+{% block title %}请假记录查询(SQL) - HRMS{% endblock %}
+{% block page_title %}请假记录查询（原生SQL）{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-lg shadow p-6">
+  <div class="mb-4 text-sm text-gray-500">仅允许查询本人部门及其下级部门的请假记录；下级部门无法查询上级部门。</div>
+
+  <form method="get" class="grid grid-cols-1 md:grid-cols-6 gap-3 mb-6">
+    <div class="md:col-span-2">
+      <label class="block text-xs text-gray-500 mb-1">关键字</label>
+      <input name="keyword" value="{{ filters.keyword }}" placeholder="姓名/工号/事由"
+        class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-primary text-sm" />
+    </div>
+
+    <div>
+      <label class="block text-xs text-gray-500 mb-1">工号(精确)</label>
+      <input name="emp_id" value="{{ filters.emp_id }}" placeholder="例如：EMP1001"
+        class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-primary text-sm" />
+    </div>
+
+    <div>
+      <label class="block text-xs text-gray-500 mb-1">组织</label>
+      <select name="org" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
+        <option value="">全部（含下级）</option>
+        {% for o in orgs %}
+          <option value="{{ o.id }}" {% if filters.org == o.id %}selected{% endif %}>{{ o.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div>
+      <label class="block text-xs text-gray-500 mb-1">请假类型</label>
+      <select name="leave_type" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
+        <option value="">全部</option>
+        {% for v, label in leave_type_choices %}
+          <option value="{{ v }}" {% if filters.leave_type == v %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div>
+      <label class="block text-xs text-gray-500 mb-1">状态</label>
+      <select name="apply_status" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
+        <option value="">全部</option>
+        {% for v, label in apply_status_choices %}
+          <option value="{{ v }}" {% if filters.apply_status == v %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div>
+      <label class="block text-xs text-gray-500 mb-1">天数(>=)</label>
+      <input name="days_min" value="{{ filters.days_min }}" placeholder="例如：1"
+        class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm" />
+    </div>
+
+    <div>
+      <label class="block text-xs text-gray-500 mb-1">天数(<=)</label>
+      <input name="days_max" value="{{ filters.days_max }}" placeholder="例如：5"
+        class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm" />
+    </div>
+
+    <div>
+      <label class="block text-xs text-gray-500 mb-1">开始时间(>=)</label>
+      <input type="datetime-local" name="start" value="{{ filters.start }}"
+        class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm" />
+    </div>
+
+    <div>
+      <label class="block text-xs text-gray-500 mb-1">结束时间(<=)</label>
+      <input type="datetime-local" name="end" value="{{ filters.end }}"
+        class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm" />
+    </div>
+
+    <div class="md:col-span-6 flex items-center gap-2">
+      <button type="submit" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors text-sm">
+        查询
+      </button>
+      <a href="{% url 'leave:sql_search' %}" class="px-4 py-2 rounded-lg border border-gray-200 hover:bg-gray-50 text-sm">
+        重置
+      </a>
+      <div class="ml-auto text-sm text-gray-500">结果：{{ result_count }} 条（最多 {{ max_rows }} 条）</div>
+    </div>
+  </form>
+
+  <div class="overflow-x-auto">
+    <table class="w-full text-left border-collapse">
+      <thead>
+        <tr class="text-gray-500 border-b border-gray-100 bg-gray-50/50">
+          <th class="py-3 px-4 font-medium">申请人</th>
+          <th class="py-3 px-4 font-medium">组织</th>
+          <th class="py-3 px-4 font-medium">类型</th>
+          <th class="py-3 px-4 font-medium">时间段</th>
+          <th class="py-3 px-4 font-medium">天数</th>
+          <th class="py-3 px-4 font-medium">状态</th>
+          <th class="py-3 px-4 font-medium">提交时间</th>
+        </tr>
+      </thead>
+      <tbody class="text-sm text-gray-700">
+        {% for r in results %}
+          <tr class="hover:bg-gray-50 border-b border-gray-50 last:border-0 transition-colors">
+            <td class="py-3 px-4">
+              <div class="font-medium text-gray-900">{{ r.emp_name }}</div>
+              <div class="text-xs text-gray-400 font-mono">{{ r.emp_id }}</div>
+            </td>
+            <td class="py-3 px-4">{{ r.org_name }}</td>
+            <td class="py-3 px-4">{{ r.leave_type_label }}</td>
+            <td class="py-3 px-4">
+              <div class="text-xs text-gray-600">{{ r.start_time|date:"Y-m-d H:i" }} ~ {{ r.end_time|date:"Y-m-d H:i" }}</div>
+            </td>
+            <td class="py-3 px-4 font-semibold">{{ r.total_days }} 天</td>
+            <td class="py-3 px-4">{{ r.apply_status_label }}</td>
+            <td class="py-3 px-4">{{ r.apply_time|date:"Y-m-d H:i" }}</td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="7" class="py-12 text-center text-gray-400">没有找到符合条件的数据</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

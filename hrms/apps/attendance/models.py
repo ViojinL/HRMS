@@ -80,3 +80,51 @@ class Attendance(BaseModel):
             models.Index(fields=['emp', 'attendance_date']),
             models.Index(fields=['attendance_status', 'attendance_date']),
         ]
+
+
+class AttendanceShift(BaseModel):
+    shift_name = models.CharField(
+        max_length=64,
+        verbose_name='班次名称',
+        default='默认班次'
+    )
+    check_in_start_time = models.TimeField(
+        verbose_name='上班打卡开始时间'
+    )
+    check_in_end_time = models.TimeField(
+        verbose_name='上班打卡结束时间'
+    )
+    check_out_start_time = models.TimeField(
+        verbose_name='下班打卡开始时间'
+    )
+    check_out_end_time = models.TimeField(
+        verbose_name='下班打卡结束时间'
+    )
+    is_active = models.BooleanField(
+        default=False,
+        verbose_name='启用状态',
+        help_text='只有启用状态的班次会被系统作为当前考勤窗口'
+    )
+    create_by = models.CharField(
+        max_length=64,
+        default='system',
+        verbose_name='创建人'
+    )
+    update_by = models.CharField(
+        max_length=64,
+        default='system',
+        verbose_name='更新人'
+    )
+
+    class Meta:
+        db_table = 'attendance_shift'
+        verbose_name = '考勤班次'
+        verbose_name_plural = verbose_name
+        ordering = ['-update_time']
+
+    def __str__(self):
+        return self.shift_name
+
+    @classmethod
+    def get_active_shift(cls):
+        return cls.objects.filter(is_active=True).order_by('-update_time').first()

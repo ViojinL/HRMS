@@ -1,0 +1,20 @@
+version: '3.9'
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: hrms
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1024linux.Q
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - ci_pgdata:/var/lib/postgresql/data
+volumes:
+  ci_pgdata:

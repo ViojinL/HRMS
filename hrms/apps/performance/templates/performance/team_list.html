@@ -6,7 +6,8 @@
 {% block content %}
 <div class="bg-white rounded-lg shadow p-6">
     <div class="mb-4">
-        <h3 class="text-lg font-bold text-gray-700">待办评分</h3>
+        <h3 class="text-lg font-bold text-gray-700">提示</h3>
+        <p class="text-sm text-gray-500 mt-1">已取消“上级评分”流程，统一由绩效部门进行评估管理。</p>
     </div>
 
     <div class="overflow-x-auto">
@@ -15,6 +16,8 @@
                 <tr class="text-gray-500 border-b border-gray-100">
                     <th class="py-3 px-4">员工姓名</th>
                     <th class="py-3 px-4">考核周期</th>
+                    <th class="py-3 px-4">出勤/请假</th>
+                    <th class="py-3 px-4">规则得分</th>
                     <th class="py-3 px-4">自评得分</th>
                     <th class="py-3 px-4">管理评分</th>
                     <th class="py-3 px-4">操作</th>
@@ -33,20 +36,23 @@
                         </div>
                     </td>
                     <td class="py-3 px-4">{{ eval.cycle.cycle_name }}</td>
+                    <td class="py-3 px-4 text-gray-500">
+                        {% if eval.attendance_rate_percent != None and eval.leave_rate_percent != None %}
+                        出勤 {{ eval.attendance_rate_percent }}% / 请假 {{ eval.leave_rate_percent }}%
+                        {% else %}
+                        -
+                        {% endif %}
+                    </td>
+                    <td class="py-3 px-4 font-medium">{{ eval.rule_score|default:"-" }}</td>
                     <td class="py-3 px-4">{{ eval.self_score|default:"-" }}</td>
                     <td class="py-3 px-4">{{ eval.manager_score|default:"-" }}</td>
                     <td class="py-3 px-4">
-                        {% if eval.evaluation_status == 'manager_eval' %}
-                        <a href="{% url 'performance:do_manager_eval' eval.pk %}"
-                            class="bg-primary text-white px-3 py-1 rounded text-xs hover:bg-blue-600 transition-colors">评分</a>
-                        {% else %}
                         <span class="text-gray-400 text-xs">无需操作</span>
-                        {% endif %}
                     </td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="5" class="py-8 text-center text-gray-400">暂无待办评分</td>
+                    <td colspan="7" class="py-8 text-center text-gray-400">暂无待办评分</td>
                 </tr>
                 {% endfor %}
             </tbody>

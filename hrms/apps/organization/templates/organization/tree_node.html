@@ -1,42 +1,20 @@
-<div class="flex flex-col items-center relative">
-    <!-- 节点卡片 -->
-    <div
-        class="relative z-10 bg-white border-2 border-primary/20 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow min-w-[200px] text-center group cursor-pointer hover:border-primary">
-        <div class="font-bold text-gray-800 text-lg">{{ node.org.org_name }}</div>
-        <div class="flex items-center justify-center gap-2 mt-2">
-            <!-- 尝试直接访问属性，看是否能正常解析 -->
-            <span class="px-2 py-0.5 rounded text-xs bg-gray-100 text-gray-500">{{ node.org.get_org_type_display
-                }}</span>
-            {% if node.org.manager_emp %}
-            <div class="flex items-center gap-1 bg-blue-50 px-2 py-0.5 rounded text-xs text-blue-600">
-                <i class="fa-solid fa-user-tie"></i>
-                {{ node.org.manager_emp.emp_name }}
-            </div>
-            {% endif %}
-        </div>
-        <!-- 连接线圆点 -->
-        {% if node.children %}
-        <div
-            class="absolute -bottom-3 left-1/2 -translate-x-1/2 w-4 h-4 bg-white border-b-2 border-r-2 border-gray-300 rotate-45">
+<li>
+    <div class="org-node-card {% if node.org.org_type == 'company' %}org-node-company{% elif node.org.org_type == 'department' %}org-node-department{% else %}org-node-team{% endif %}">
+        <div class="node-header">{{ node.org.org_name }}</div>
+        <div class="node-meta">{{ node.type_display }}</div>
+        {% if node.manager_display %}
+        <div class="node-badge">
+            <i class="fa-solid fa-user"></i>
+            {{ node.manager_display }}
         </div>
         {% endif %}
     </div>
-
-    <!-- 子节点容器 -->
+    
     {% if node.children %}
-    <div class="mt-8 flex gap-8 relative items-start">
+    <ul>
         {% for child in node.children %}
-        <div class="relative flex flex-col items-center">
-            <!-- 垂直连接线 -->
-            <div class="h-8 w-px bg-gray-300 absolute -top-8 left-1/2 -translate-x-1/2"></div>
-            <!-- 递归渲染 -->
             {% include "organization/tree_node.html" with node=child %}
-        </div>
         {% endfor %}
-        <!-- 顶部横线 -->
-        <div
-            class="absolute -top-8 left-[calc(50%/{{ node.children|length }})] right-[calc(50%/{{ node.children|length }})] h-px bg-gray-300">
-        </div>
-    </div>
+    </ul>
     {% endif %}
-</div>
+</li>

@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+
+{% block title %}请假理由配置 - HRMS{% endblock %}
+{% block page_title %}请假理由配置{% endblock %}
+
+{% block content %}
+<div class="grid gap-6 lg:grid-cols-3">
+    <div class="lg:col-span-2 space-y-6">
+        <section class="bg-white rounded-3xl shadow p-6 space-y-6">
+            <header class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <p class="text-sm text-gray-400">配置角色</p>
+                    <h3 class="text-xl font-bold text-gray-900">请假理由与最大天数</h3>
+                </div>
+                <p class="text-sm text-gray-500">此处的配置会被审批流、请假申请页面实时读取，确保规则可视化管理。</p>
+            </header>
+
+            <form method="post" class="space-y-4">
+                {% csrf_token %}
+                {{ form.non_field_errors }}
+                <div class="grid gap-4 md:grid-cols-2">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-600">名称</label>
+                        {{ form.name }}
+                        {% if form.name.errors %}
+                        <p class="text-xs text-danger">{{ form.name.errors|join:" " }}</p>
+                        {% endif %}
+                    </div>
+                    <div class="flex flex-col justify-between">
+                        <p class="text-xs text-gray-500">编码将由系统根据名称自动生成，重复时自动加后缀。</p>
+                    </div>
+                </div>
+                <div class="grid gap-4 md:grid-cols-3">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-600">最长天数</label>
+                        {{ form.max_days }}
+                        {% if form.max_days.errors %}
+                        <p class="text-xs text-danger">{{ form.max_days.errors|join:" " }}</p>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-600">状态</label>
+                        {{ form.status }}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-600">排序</label>
+                        {{ form.sort_order }}
+                    </div>
+                </div>
+                <div class="space-y-2">
+                    <div class="flex items-center gap-2">
+                        {{ form.requires_attachment }}
+                        <label class="text-sm font-medium text-gray-600">是否需要附件</label>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-600">说明</label>
+                    {{ form.description }}
+                </div>
+                <div class="flex justify-end">
+                    <button type="submit"
+                        class="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2 text-white text-sm font-semibold shadow-lg hover:bg-primary/90 transition">
+                        <i class="fa-solid fa-circle-plus"></i>
+                        保存配置
+                    </button>
+                </div>
+            </form>
+
+            <div class="border-t border-gray-100 pt-6 space-y-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-500">已创建的配置</p>
+                        <h4 class="text-lg font-semibold text-gray-900">请假理由列表</h4>
+                    </div>
+                    <span class="text-xs text-gray-500">共 {{ total_reasons }} 项</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm text-gray-600">
+                        <thead>
+                            <tr class="text-xs uppercase tracking-wide text-gray-500 border-b border-gray-100">
+                                <th class="py-3 px-2">排序</th>
+                                <th class="py-3 px-2">编码/名称</th>
+                                <th class="py-3 px-2">最长天数</th>
+                                <th class="py-3 px-2">状态</th>
+                                <th class="py-3 px-2">审批附件</th>
+                                <th class="py-3 px-2 text-right">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                            {% for cfg in configs %}
+                            <tr>
+                                <td class="py-3 px-2 font-medium text-gray-700">{{ cfg.sort_order }}</td>
+                                <td class="py-3 px-2">
+                                    <p class="font-semibold text-gray-900">{{ cfg.code }}</p>
+                                    <p class="text-xs text-gray-500">{{ cfg.name }}</p>
+                                </td>
+                                <td class="py-3 px-2 font-mono">{{ cfg.max_days }} 天</td>
+                                <td class="py-3 px-2">
+                                    {% if cfg.status == 'enabled' %}
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-green-50 text-green-600">启用</span>
+                                    {% else %}
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-gray-100 text-gray-500">禁用</span>
+                                    {% endif %}
+                                </td>
+                                <td class="py-3 px-2">{{ cfg.requires_attachment|yesno:'是,否' }}</td>
+                                <td class="py-3 px-2 text-right space-x-2">
+                                    <a href="{% url 'config:leave_reason_edit' cfg.pk %}"
+                                        class="text-primary text-xs font-semibold">编辑</a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="py-4 text-center text-gray-400">暂无配置，请先添加一条。</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    </div>
+</div>
+{% endblock %}
