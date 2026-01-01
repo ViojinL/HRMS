@@ -16,5 +16,28 @@ services:
       retries: 10
     volumes:
       - ci_pgdata:/var/lib/postgresql/data
+    networks:
+      - ci-net
+
+  web:
+    image: python:3.11-slim
+    working_dir: /app
+    volumes:
+      - ..:/app
+    environment:
+      - POSTGRES_HOST=db
+      - POSTGRES_DB=hrms
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=1024linux.Q
+    depends_on:
+      db:
+        condition: service_healthy
+    command: tail -f /dev/null
+    networks:
+      - ci-net
+
 volumes:
   ci_pgdata:
+
+networks:
+  ci-net:

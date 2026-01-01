@@ -17,38 +17,35 @@ pipeline {
         checkout scm
       }
     }
-    stage('Install dependencies') {
-      steps {
-        // sh 'python -m pip install --upgrade pip'
-        sh 'cat requirements.txt'
-        sh 'pip install -r requirements.txt'
-      }
-    }
     stage('Start database') {
       steps {
-        sh 'docker compose -f ci/docker-compose.yml up -d db'
+        sh 'docker compose -f ci/docker-compose.yml up -d db web'
         sh 'docker compose -f ci/docker-compose.yml ps'
+      }
+    }
+    stage('Install dependencies') {
+      steps {
+         // Install inside the container
+         sh 'docker compose -f ci/docker-compose.yml exec -T web pip install -r requirements.txt'
       }
     }
     stage('Migrate & SQL scripts') {
       steps {
         sh '''
-          cd hrms && python manage.py migrate
-          cd hrms && python apply_triggers.py
-          cd hrms && python apply_views.py
+          docker compose -f ci/docker-compose.yml exec -T web python hrms/manage.py migrate
+          docker compose -f ci/docker-compose.yml exec -T web python hrms/apply_triggers.py
+          docker compose -f ci/docker-compose.yml exec -T web python hrms/apply_views.py
         '''
       }
     }
     stage('Lint') {
       steps {
-        // sh 'black --check .' // Skip black check for now as it might check root
-        // sh 'ruff check apps utils' // Skip ruff as it is removed
-        echo 'Skipping lint for now'
+        echo 'Skipping lint'
       }
     }
     stage('Test') {
       steps {
-        sh 'cd hrms && python manage.py test apps.performance'
+        sh 'docker compose -f ci/docker-compose.yml exec -T web python hrms/manage.py test apps.performance'
       }
     }
     stage('Deploy') {
