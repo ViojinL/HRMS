@@ -9,6 +9,7 @@ pipeline {
     DEPLOY_DIR = '/srv/hrms'
     DOMAIN_NAME = 'hrms.kohinbox.top'
     PIP_BREAK_SYSTEM_PACKAGES = '1'
+    POSTGRES_HOST = '172.17.0.1'
   }
   stages {
     stage('Checkout') {
