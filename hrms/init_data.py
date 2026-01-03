@@ -413,53 +413,61 @@ def seed_performance_2024_h1_h2(employees):
             update_by=actor_id(),
         )
 
-        # 定义一组分数梯度，用于生成演示数据
-        score_pool = [98.5, 92.0, 88.5, 75.0, 66.5, 58.0, 45.5, 32.0]
-        
-        for i, emp in enumerate(employees):
+        for emp in employees:
             ev = PerformanceEvaluation.objects.create(
                 cycle=cycle,
                 emp=emp,
                 evaluation_status="completed",
                 appeal_status="none",
                 final_score=None,
-                final_remark="HR verified. Balanced scorecard updated.",
+                final_remark="Review completed based on year-to-date metrics.",
                 create_by=actor_id(),
                 update_by=actor_id(),
             )
+            # 让系统基于考勤数据（seed_leave_2024生成的）自动计算规则得分
             refresh_evaluation_metrics(ev, save=True)
 
-            # 注入多样性分数（同时修改规则得分和最终得分）
-            if i < len(score_pool):
-                val = Decimal(str(score_pool[i]))
-                ev.rule_score = val
-                ev.final_score = val
-            else:
+            # 最终得分逻辑：在规则得分基础上，进行随机小幅修正（反映人工审核结果）
+            if ev.rule_score is not None:
                 import random
-                random_val = Decimal(str(round(random.uniform(78.0, 96.5), 2)))
-                ev.rule_score = random_val
-                ev.final_score = random_val
-            
-            ev.save(update_fields=["rule_score", "final_score"])
+                # 随机权重：允许最终得分比规则得分高一点或低一点 (-3 到 +2 分)
+                adjustment = Decimal(str(round(random.uniform(-3.0, 2.0), 2)))
+                ev.final_score = max(Decimal("0"), min(Decimal("100"), ev.rule_score + adjustment))
+                ev.save(update_fields=["final_score"])
+            else:
+                # 兜底分数
+                ev.final_score = Decimal("95.00")
+                ev.save(update_fields=["final_score"])
 
-            created_evals += 1
-
-    print(f"    Created 2 cycles, {created_evals} evaluations with score distribution.")
+    print(f"    Created 2 cycles, {created_evals} evaluations with realistic metrics.")
 
 
 def seed_leave_2024(people: dict):
-    """生成覆盖 2024 上/下半年的批准请假段，确保 leave_rate 可计算。"""
+    """生成覆盖 2024 上/下半年的批准请假段，确保出勤率产生真实的层次感。"""
 
     print("=== 2) 构建 2024 请假示例 (approved) ===")
 
-    # 扩展请假案例，让更多人有出勤波动
+    # 我们通过请假天数来控制“规则得分”：
+    # 一个半年周期约 125 个工作日
+    # 请 10 天假 -> 约 92 分
+    # 请 30 天假 -> 约 76 分
+    # 请 60 天假 -> 约 52 分
+    # 请 80 天假 -> 约 36 分
+
     cases = [
-        (people["dev1"], "annual", "Annual Leave", _dt(2024, 2, 5, 9), _dt(2024, 2, 5, 18), Decimal("1.0")),
-        (people["qa1"], "personal", "Long-term Sick", _dt(2024, 1, 15, 9), _dt(2024, 3, 25, 18), Decimal("50.0")),
-        (people["sales1"], "sick", "Flu", _dt(2024, 3, 18, 9), _dt(2024, 3, 22, 18), Decimal("5.0")),
-        (people["dev2"], "annual", "Holiday", _dt(2024, 5, 10, 9), _dt(2024, 5, 20, 18), Decimal("7.0")),
-        (people["be_lead"], "personal", "Family matter", _dt(2024, 8, 1, 9), _dt(2024, 8, 15, 18), Decimal("11.0")),
-        (people["sales_mgr"], "sick", "Medical check", _dt(2024, 10, 5, 9), _dt(2024, 10, 15, 18), Decimal("8.0")),
+        # 极高分组
+        (people.get("dev1"), "annual", "Vacation", _dt(2024, 2, 1, 9), _dt(2024, 2, 2, 18), Decimal("2.0")),
+        
+        # 中等分组 (70-80)
+        (people.get("sales2"), "personal", "Personal affairs", _dt(2024, 3, 1, 9), _dt(2024, 4, 1, 18), Decimal("22.0")),
+        (people.get("dev2"), "sick", "Medical leave", _dt(2024, 5, 10, 9), _dt(2024, 5, 30, 18), Decimal("15.0")),
+        
+        # 低分组 (40-60)
+        (people.get("qa1"), "personal", "Long leave", _dt(2024, 1, 10, 9), _dt(2024, 3, 30, 18), Decimal("58.0")),
+        (people.get("sales1"), "personal", "Family reasons", _dt(2024, 7, 10, 9), _dt(2024, 9, 20, 18), Decimal("52.0")),
+        
+        # 极低分组 (<40)
+        (people.get("be_lead"), "personal", "Major issues", _dt(2024, 1, 5, 9), _dt(2024, 5, 15, 18), Decimal("90.0")),
     ]
 
     created = 0
