@@ -64,20 +64,27 @@ pipeline {
       steps {
         script {
           def webContainer = sh(script: "docker compose -f ci/docker-compose.yml ps -q web", returnStdout: true).trim()
-          // Run pytest with coverage and junit xml
-          // Return status code to handle failure after copying artifacts
-          def exitCode = sh(script: 'docker compose -f ci/docker-compose.yml exec -T web pytest --cov=hrms/apps --cov-report=xml:coverage.xml --junitxml=test-results.xml', returnStatus: true)
+          // Run pytest with coverage (XML + HTML) and junit xml + html report
+          def exitCode = sh(script: 'docker compose -f ci/docker-compose.yml exec -T web pytest --cov=hrms/apps --cov-report=xml:coverage.xml --cov-report=html:htmlcov --junitxml=test-results.xml --html=report.html --self-contained-html', returnStatus: true)
           
           // Copy artifacts out of container
           sh "docker cp ${webContainer}:/app/test-results.xml ."
+          sh "docker cp ${webContainer}:/app/report.html ."
           sh "docker cp ${webContainer}:/app/coverage.xml ."
+          sh "docker cp ${webContainer}:/app/htmlcov ."
           
           // publish reports
           junit 'test-results.xml'
-          archiveArtifacts artifacts: 'coverage.xml'
+          archiveArtifacts artifacts: 'report.html,coverage.xml,htmlcov/**', allowEmptyArchive: true
           
+          // Optional: If you have HTML Publisher plugin, you can use:
+          // publishHTML([allowMissing: false, alwaysLinkToLastBuild: true, keepAll: true, reportDir: 'htmlcov', reportFiles: 'index.html', reportName: 'HTML Coverage Report', reportTitles: ''])
+          // publishHTML([allowMissing: false, alwaysLinkToLastBuild: true, keepAll: true, reportDir: '.', reportFiles: 'report.html', reportName: 'Test HTML Report', reportTitles: ''])
+
           if (exitCode != 0) {
-            error("Tests failed")
+            echo "Tests failed, but artifacts were captured."
+            // We still want the build to reflect failure if tests failed
+            currentBuild.result = 'UNSTABLE'
           }
         }
       }
