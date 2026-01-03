@@ -413,23 +413,33 @@ def seed_performance_2024_h1_h2(employees):
             update_by=actor_id(),
         )
 
-        for emp in employees:
+        # 定义一组分数梯度，用于生成演示数据
+        score_pool = [98.5, 92.0, 88.5, 75.0, 66.5, 58.0, 45.5, 32.0]
+        
+        for i, emp in enumerate(employees):
             ev = PerformanceEvaluation.objects.create(
                 cycle=cycle,
                 emp=emp,
                 evaluation_status="completed",
                 appeal_status="none",
                 final_score=None,
-                final_remark="绩效部门统一核算（示例数据）",
+                final_remark="Performance verified by HR department (Mock Data)",
                 create_by=actor_id(),
                 update_by=actor_id(),
             )
             refresh_evaluation_metrics(ev, save=True)
 
-            # 示例：最终得分默认采用规则得分（若暂无数据则保持为空）
-            if ev.rule_score is not None:
-                ev.final_score = ev.rule_score
-                ev.save(update_fields=["final_score"])
+            # 注入多样性分数：
+            # 为列表前几个员工分配梯度分数，其余人保持高分或自动计算
+            if i < len(score_pool):
+                ev.final_score = Decimal(str(score_pool[i]))
+            else:
+                # 随机生成一些 80-95 之间的分数
+                import random
+                random_score = random.uniform(80.5, 97.5)
+                ev.final_score = Decimal(str(round(random_score, 2)))
+            
+            ev.save(update_fields=["final_score"])
 
             created_evals += 1
 
