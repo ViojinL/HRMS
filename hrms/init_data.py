@@ -39,10 +39,18 @@ from apps.organization.models import Organization
 from apps.performance.models import (
     PerformanceCycle,
     PerformanceEvaluation,
-    PerformanceCycle,
-    PerformanceEvaluation,
 )
 from apps.performance.services import refresh_evaluation_metrics
+import argparse
+
+def check_should_run(force=False):
+    """检查是否应该运行初始化"""
+    if force:
+        return True
+    if Organization.objects.exists():
+        print("跳过初始化：数据库中已存在组织架构数据。使用 --force 强制重置。")
+        return False
+    return True
 
 
 DEFAULT_PASSWORD = "Password123!"
@@ -570,7 +578,15 @@ def seed_attendance_2024(employees):
 
 
 def main():
-    reset_database()
+    parser = argparse.ArgumentParser(description="HRMS 数据初始化工具")
+    parser.add_argument("--force", action="store_true", help="强制执行（会先清空数据库）")
+    args = parser.parse_args()
+
+    if not check_should_run(args.force):
+        return
+
+    if args.force:
+        reset_database()
 
     ctx = seed_organizations_and_employees()
     employees = ctx["employees"]
@@ -582,17 +598,7 @@ def main():
     # 再生成绩效（会刷新并写回出勤/请假率与规则得分）
     seed_performance_2024_h1_h2(employees)
 
-    print("\n初始化完成。账号与密码：")
-    print(f"统一密码：{DEFAULT_PASSWORD}")
-    print("- admin (超级管理员)")
-    print("- ceo (CEO)")
-    print("- cfo (CFO / 绩效管理员)")
-    print("- perf_admin (绩效经理 / 绩效管理员)")
-    print("- perf_staff (绩效专员 / 绩效部门成员)")
-    print("- hr_dir (HR Director / 组织架构管理)")
-    print("- tech_dir / sales_dir / fe_lead / be_lead / qa_lead / sales_mgr")
-    print("- dev001 / dev002 / qa001 / sales001 (普通员工)")
-
+    print("\n初始化完成。")
 
 if __name__ == "__main__":
     main()

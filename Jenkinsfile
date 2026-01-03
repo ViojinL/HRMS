@@ -40,6 +40,7 @@ pipeline {
           docker compose -f ci/docker-compose.yml exec -T web python hrms/manage.py migrate
           docker compose -f ci/docker-compose.yml exec -T web python hrms/apply_triggers.py
           docker compose -f ci/docker-compose.yml exec -T web python hrms/apply_views.py
+          docker compose -f ci/docker-compose.yml exec -T web python hrms/init_data.py
         '''
       }
     }
