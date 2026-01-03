@@ -135,15 +135,16 @@ pipeline {
             docker compose -f docker-compose.prod.yml --env-file .env.prod exec -T web python hrms/manage.py check
           '''
           
-          sh """
+          // Use single-quoted Groovy string to avoid interpolating secrets in Groovy; shell expands env vars.
+          sh '''
             set -euo pipefail
             # Copy script to VPS
-            scp -o StrictHostKeyChecking=no -i $SSH_KEY -P ${VPS_SSH_PORT} deploy.sh ${VPS_USER}@${VPS_HOST}:/tmp/deploy.sh
+            scp -o StrictHostKeyChecking=no -i $SSH_KEY -P $VPS_SSH_PORT deploy.sh $VPS_USER@$VPS_HOST:/tmp/deploy.sh
             # Execute script
-            ssh -o StrictHostKeyChecking=no -i $SSH_KEY -p ${VPS_SSH_PORT} ${VPS_USER}@${VPS_HOST} "chmod +x /tmp/deploy.sh && /tmp/deploy.sh"
-            # Health check
-            curl -fsSL https://${DOMAIN_NAME}/ # health might redirect to login, just check root for now or health endpoint if no auth required
-          """
+            ssh -o StrictHostKeyChecking=no -i $SSH_KEY -p $VPS_SSH_PORT $VPS_USER@$VPS_HOST "chmod +x /tmp/deploy.sh && /tmp/deploy.sh"
+            # Health check (may redirect to login)
+            curl -fsSL https://$DOMAIN_NAME/
+          '''
         }
       }
     }
