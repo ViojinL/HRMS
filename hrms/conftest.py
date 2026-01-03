@@ -2,8 +2,9 @@ import pytest
 from datetime import datetime
 
 
-def pytest_html_report_title(main_title):
-    main_title.set_text("HRMS 项目测试报告")
+def pytest_html_report_title(report):
+    # pytest-html>=3 uses a `report` object instead of `main_title`
+    report.title = "HRMS 项目测试报告"
 
 
 def pytest_configure(config):
@@ -12,9 +13,9 @@ def pytest_configure(config):
         config._metadata["项目名称"] = "HRMS_Django"
         config._metadata["测试时间"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         # 删除一些不需要显示的默认英文信息
-        del config._metadata["Packages"]
-        del config._metadata["Platform"]
-        del config._metadata["Plugins"]
+        config._metadata.pop("Packages", None)
+        config._metadata.pop("Platform", None)
+        config._metadata.pop("Plugins", None)
 
 
 @pytest.hookimpl(tryfirst=True)
