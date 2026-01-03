@@ -423,63 +423,43 @@ def seed_performance_2024_h1_h2(employees):
                 evaluation_status="completed",
                 appeal_status="none",
                 final_score=None,
-                final_remark="Performance verified by HR department (Mock Data)",
+                final_remark="HR verified. Balanced scorecard updated.",
                 create_by=actor_id(),
                 update_by=actor_id(),
             )
             refresh_evaluation_metrics(ev, save=True)
 
-            # 注入多样性分数：
-            # 为列表前几个员工分配梯度分数，其余人保持高分或自动计算
+            # 注入多样性分数（同时修改规则得分和最终得分）
             if i < len(score_pool):
-                ev.final_score = Decimal(str(score_pool[i]))
+                val = Decimal(str(score_pool[i]))
+                ev.rule_score = val
+                ev.final_score = val
             else:
-                # 随机生成一些 80-95 之间的分数
                 import random
-                random_score = random.uniform(80.5, 97.5)
-                ev.final_score = Decimal(str(round(random_score, 2)))
+                random_val = Decimal(str(round(random.uniform(78.0, 96.5), 2)))
+                ev.rule_score = random_val
+                ev.final_score = random_val
             
-            ev.save(update_fields=["final_score"])
+            ev.save(update_fields=["rule_score", "final_score"])
 
             created_evals += 1
 
-    print(f"    已创建周期 2 个，评估 {created_evals} 条（均已完成）")
+    print(f"    Created 2 cycles, {created_evals} evaluations with score distribution.")
 
 
 def seed_leave_2024(people: dict):
     """生成覆盖 2024 上/下半年的批准请假段，确保 leave_rate 可计算。"""
 
-    print("=== 2) 构建 2024 请假示例（approved） ===")
+    print("=== 2) 构建 2024 请假示例 (approved) ===")
 
+    # 扩展请假案例，让更多人有出勤波动
     cases = [
-        # dev1 (林前端)：全勤且无请假，目标得分 95-100
-        (
-            people["dev1"],
-            "annual",
-            "年假(仅0.5天测试)",
-            _dt(2024, 2, 5, 9),
-            _dt(2024, 2, 5, 13),
-            Decimal("0.5"),
-        ),
-        # qa1 (郑测试)：长期请假，目标得分 50 左右
-        # 2024 上半年约 125 个工作日，请 65 天左右假可使出勤率大跌
-        (
-            people["qa1"],
-            "personal",
-            "长期病假/事假",
-            _dt(2024, 1, 15, 9),
-            _dt(2024, 4, 15, 18),
-            Decimal("65.0"),
-        ),
-        # sales1 (马销售)：普通水平
-        (
-            people["sales1"],
-            "sick",
-            "流感请假",
-            _dt(2024, 3, 18, 14),
-            _dt(2024, 3, 19, 18),
-            Decimal("1.5"),
-        ),
+        (people["dev1"], "annual", "Annual Leave", _dt(2024, 2, 5, 9), _dt(2024, 2, 5, 18), Decimal("1.0")),
+        (people["qa1"], "personal", "Long-term Sick", _dt(2024, 1, 15, 9), _dt(2024, 3, 25, 18), Decimal("50.0")),
+        (people["sales1"], "sick", "Flu", _dt(2024, 3, 18, 9), _dt(2024, 3, 22, 18), Decimal("5.0")),
+        (people["dev2"], "annual", "Holiday", _dt(2024, 5, 10, 9), _dt(2024, 5, 20, 18), Decimal("7.0")),
+        (people["be_lead"], "personal", "Family matter", _dt(2024, 8, 1, 9), _dt(2024, 8, 15, 18), Decimal("11.0")),
+        (people["sales_mgr"], "sick", "Medical check", _dt(2024, 10, 5, 9), _dt(2024, 10, 15, 18), Decimal("8.0")),
     ]
 
     created = 0
