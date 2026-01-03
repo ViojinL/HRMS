@@ -63,28 +63,28 @@ pipeline {
     stage('Test') {
       steps {
         script {
-          def webContainer = sh(script: "docker compose -f ci/docker-compose.yml ps -q web", returnStdout: true).trim()
-          // Run pytest with coverage (XML + HTML) and junit xml + html report
-          def exitCode = sh(script: 'docker compose -f ci/docker-compose.yml exec -T web pytest --cov=hrms/apps --cov-report=xml:coverage.xml --cov-report=html:htmlcov --junitxml=test-results.xml --html=report.html --self-contained-html', returnStatus: true)
+          // 解决 Jenkins HTML 样式被拦截的问题 (CSP)
+          System.setProperty("hudson.model.DirectoryBrowserSupport.CSP", "")
           
-          // Copy artifacts out of container
+          def webContainer = sh(script: "docker compose -f ci/docker-compose.yml ps -q web", returnStdout: true).trim()
+          
+          // 执行测试：生成中文标题的报告，并包含所有静态资源
+          // 使用 --self-contained-html 将 CSS 样式直接嵌入 HTML
+          def exitCode = sh(script: 'docker compose -f ci/docker-compose.yml exec -T web pytest --cov=hrms/apps --cov-report=xml:coverage.xml --cov-report=html:htmlcov --junitxml=test-results.xml --html=report.html --self-contained-html -c hrms/pytest.ini', returnStatus: true)
+          
           sh "docker cp ${webContainer}:/app/test-results.xml ."
           sh "docker cp ${webContainer}:/app/report.html ."
           sh "docker cp ${webContainer}:/app/coverage.xml ."
           sh "docker cp ${webContainer}:/app/htmlcov ."
           
-          // publish reports
           junit 'test-results.xml'
           archiveArtifacts artifacts: 'report.html,coverage.xml,htmlcov/**', allowEmptyArchive: true
-          
-          // Optional: If you have HTML Publisher plugin, you can use:
-          // publishHTML([allowMissing: false, alwaysLinkToLastBuild: true, keepAll: true, reportDir: 'htmlcov', reportFiles: 'index.html', reportName: 'HTML Coverage Report', reportTitles: ''])
-          // publishHTML([allowMissing: false, alwaysLinkToLastBuild: true, keepAll: true, reportDir: '.', reportFiles: 'report.html', reportName: 'Test HTML Report', reportTitles: ''])
 
           if (exitCode != 0) {
-            echo "Tests failed, but artifacts were captured."
-            // We still want the build to reflect failure if tests failed
+            echo "某些测试未通过，请点击 'Build Artifacts' 查看 report.html 了解详情"
             currentBuild.result = 'UNSTABLE'
+          } else {
+            echo "恭喜！所有测试通过。"
           }
         }
       }
