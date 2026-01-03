@@ -50,9 +50,7 @@ class DashboardViewTests(TestCase):
 
     def test_superuser_sees_admin_dashboard(self) -> None:
         admin_user = User.objects.create_superuser(
-            username="admin",
-            email="admin@example.com",
-            password="Password123!",
+            username="admin", email="admin@example.com", password="Password123!"
         )
         self.client.force_login(admin_user)
 

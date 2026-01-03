@@ -7,9 +7,7 @@ class LoginViewTests(TestCase):
     def setUp(self) -> None:
         self.login_url = reverse("login")
         self.dashboard_url = reverse("core:dashboard")
-        self.user = User.objects.create_user(
-            username="alice", password="Password123!"
-        )
+        self.user = User.objects.create_user(username="alice", password="Password123!")
 
     def test_login_page_renders(self) -> None:
         response = self.client.get(self.login_url)

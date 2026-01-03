@@ -63,12 +63,8 @@ pipeline {
     stage('Test') {
       steps {
         script {
-          // 解决 Jenkins HTML 样式被拦截的问题 (CSP)
-          
-          def webContainer = sh(script: "docker compose -f ci/docker-compose.yml ps -q web", returnStdout: true).trim()
-          
-          // 执行测试：生成中文标题的报告，并包含所有静态资源
-          // 使用 --self-contained-html 将 CSS 样式直接嵌入 HTML
+          // Execute tests and generate HTML report with all static assets embedded
+          // Use --self-contained-html to embed CSS/JS into the HTML file
           def exitCode = sh(script: 'docker compose -f ci/docker-compose.yml exec -T web pytest --cov=hrms/apps --cov-report=xml:coverage.xml --cov-report=html:htmlcov --junitxml=test-results.xml --html=report.html --self-contained-html -c pytest.ini', returnStatus: true)
           
           sh "docker cp ${webContainer}:/app/test-results.xml ."
@@ -87,8 +83,8 @@ pipeline {
                 keepAll: true,
                 reportDir: '.',
                 reportFiles: 'report.html',
-                reportName: '单元测试报告',
-                reportTitles: 'HRMS 测试详情'
+                reportName: 'Unit Test Report',
+                reportTitles: 'HRMS Test Details'
             ])
             publishHTML([
                 allowMissing: false,
@@ -96,18 +92,18 @@ pipeline {
                 keepAll: true,
                 reportDir: 'htmlcov',
                 reportFiles: 'index.html',
-                reportName: '代码覆盖率报告',
-                reportTitles: 'HRMS 覆盖率详情'
+                reportName: 'Code Coverage Report',
+                reportTitles: 'HRMS Coverage Details'
             ])
           } catch (Throwable e) {
-            echo "提示：无法使用高级可视化报告入口（可能缺少 HTML Publisher 插件），请通过 'Build Artifacts' 查看 HTML 文件。"
+            echo "Notice: High-level visual reports unavailable (HTML Publisher plugin may be missing). Please check 'Build Artifacts' for HTML files."
           }
 
           if (exitCode != 0) {
-            echo "警告：有测试用例未通过！"
+            echo "Warning: Some tests failed!"
             currentBuild.result = 'UNSTABLE'
           } else {
-            echo "恭喜！所有测试通过，状态为 Success。"
+            echo "Success! All tests passed."
             currentBuild.result = 'SUCCESS'
           }
         }
