@@ -69,7 +69,7 @@ pipeline {
           
           // 执行测试：生成中文标题的报告，并包含所有静态资源
           // 使用 --self-contained-html 将 CSS 样式直接嵌入 HTML
-          def exitCode = sh(script: 'docker compose -f ci/docker-compose.yml exec -T web pytest --cov=hrms/apps --cov-report=xml:coverage.xml --cov-report=html:htmlcov --junitxml=test-results.xml --html=report.html --self-contained-html -c hrms/pytest.ini', returnStatus: true)
+          def exitCode = sh(script: 'docker compose -f ci/docker-compose.yml exec -T web pytest --cov=hrms/apps --cov-report=xml:coverage.xml --cov-report=html:htmlcov --junitxml=test-results.xml --html=report.html --self-contained-html -c pytest.ini', returnStatus: true)
           
           sh "docker cp ${webContainer}:/app/test-results.xml ."
           sh "docker cp ${webContainer}:/app/report.html ."
@@ -99,7 +99,7 @@ pipeline {
                 reportName: '代码覆盖率报告',
                 reportTitles: 'HRMS 覆盖率详情'
             ])
-          } catch (Exception e) {
+          } catch (Throwable e) {
             echo "提示：无法使用高级可视化报告入口（可能缺少 HTML Publisher 插件），请通过 'Build Artifacts' 查看 HTML 文件。"
           }
 
