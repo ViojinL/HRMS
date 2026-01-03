@@ -39,6 +39,7 @@ yarn-error.log*
 /ci_pgdata/
 hrms.zip
 deploy-ci-key*
+deploy_key_new*
 *.pub
 *.key
 ssh-key*
