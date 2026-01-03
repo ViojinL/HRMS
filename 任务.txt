@@ -15,4 +15,4 @@
 
 # 原始需求 (已部分实现)
 - 在 apps/performance/tests/ 增加 PerformanceEvaluation 边界测试（缺失率、零权重、百分比四舍五入）。[已完成]
-- CI 阶段执行 lint (black/ruff)。[待恢复]
+- [x] CI 阶段执行 lint (black/ruff)。[已恢复]
