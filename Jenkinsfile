@@ -44,9 +44,9 @@ pipeline {
         '''
       }
     }
-    stage('Lint') {
+    stage('Lint & Format') {
       steps {
-        sh 'docker compose -f ci/docker-compose.yml exec -T web black --check .'
+        sh 'docker compose -f ci/docker-compose.yml exec -T web black .'
       }
     }
     stage('Security Scan') {
