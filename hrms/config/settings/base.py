@@ -21,10 +21,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-u!7-p%n3@izix*j05u*!*fbwaumkybckx%ov)=-f5enexzt^b@"
+SECRET_KEY = os.environ.get(
+    "DJANGO_SECRET_KEY",
+    "django-insecure-u!7-p%n3@izix*j05u*!*fbwaumkybckx%ov)=-f5enexzt^b@",
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get("DJANGO_DEBUG", "True").lower() == "true"
 
 ALLOWED_HOSTS = (
     os.environ.get("ALLOWED_HOSTS", "").split(",")
@@ -97,11 +100,11 @@ WSGI_APPLICATION = "config.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "hrms",
-        "USER": "postgres",
-        "PASSWORD": "1024linux.Q",
+        "NAME": os.environ.get("POSTGRES_DB", "hrms"),
+        "USER": os.environ.get("POSTGRES_USER", "postgres"),
+        "PASSWORD": os.environ.get("POSTGRES_PASSWORD", "1024linux.Q"),
         "HOST": os.environ.get("POSTGRES_HOST", "localhost"),
-        "PORT": "5432",
+        "PORT": os.environ.get("POSTGRES_PORT", "5432"),
     }
 }
 
