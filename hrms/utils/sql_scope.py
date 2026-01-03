@@ -49,7 +49,12 @@ def get_user_scope(*, user_id: int, is_superuser: bool, is_staff: bool) -> UserS
     if emp_pk:
         pos_upper = (position or "").upper()
         org_upper = (org_name or "").upper()
-        is_hr = ("人力" in (org_name or "")) or ("HR" in pos_upper) or ("HR" in org_upper) or is_staff
+        is_hr = (
+            ("人力" in (org_name or ""))
+            or ("HR" in pos_upper)
+            or ("HR" in org_upper)
+            or is_staff
+        )
 
         with connection.cursor() as cursor:
             cursor.execute(
@@ -88,9 +93,7 @@ def build_org_tree_cte(root_org_ids: Sequence[str]) -> tuple[str, list[Any]]:
 
     values_sql = ", ".join(["(%s)"] * len(root_org_ids))
     cte_sql = (
-        "WITH RECURSIVE roots(id) AS (VALUES "
-        + values_sql
-        + ") , org_tree AS ("
+        "WITH RECURSIVE roots(id) AS (VALUES " + values_sql + ") , org_tree AS ("
         "SELECT id FROM roots "
         "UNION ALL "
         "SELECT o.id FROM organization o "

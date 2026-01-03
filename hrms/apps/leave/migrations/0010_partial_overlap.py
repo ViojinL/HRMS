@@ -4,7 +4,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('leave', '0009_drop_old_exclude'),
+        ("leave", "0009_drop_old_exclude"),
     ]
 
     operations = [

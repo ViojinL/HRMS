@@ -43,6 +43,7 @@ from apps.performance.models import (
 from apps.performance.services import refresh_evaluation_metrics
 import argparse
 
+
 def check_should_run(force=False):
     """检查是否应该运行初始化"""
     if force:
@@ -441,24 +442,26 @@ def seed_leave_2024(people: dict):
     print("=== 2) 构建 2024 请假示例（approved） ===")
 
     cases = [
-        # dev1：上半年 5 天年假 + 下半年 2 天游休
+        # dev1 (林前端)：全勤且无请假，目标得分 95-100
         (
             people["dev1"],
             "annual",
-            "春节探亲",
+            "年假(仅0.5天测试)",
             _dt(2024, 2, 5, 9),
-            _dt(2024, 2, 9, 18),
-            Decimal("5.0"),
+            _dt(2024, 2, 5, 13),
+            Decimal("0.5"),
         ),
+        # qa1 (郑测试)：长期请假，目标得分 50 左右
+        # 2024 上半年约 125 个工作日，请 65 天左右假可使出勤率大跌
         (
-            people["dev1"],
-            "lieu",
-            "周末加班调休",
-            _dt(2024, 9, 2, 9),
-            _dt(2024, 9, 3, 18),
-            Decimal("2.0"),
+            people["qa1"],
+            "personal",
+            "长期病假/事假",
+            _dt(2024, 1, 15, 9),
+            _dt(2024, 4, 15, 18),
+            Decimal("65.0"),
         ),
-        # sales1：上半年 1.5 天病假 + 下半年 1 天事假
+        # sales1 (马销售)：普通水平
         (
             people["sales1"],
             "sick",
@@ -466,23 +469,6 @@ def seed_leave_2024(people: dict):
             _dt(2024, 3, 18, 14),
             _dt(2024, 3, 19, 18),
             Decimal("1.5"),
-        ),
-        (
-            people["sales1"],
-            "personal",
-            "家庭事务处理",
-            _dt(2024, 11, 14, 9),
-            _dt(2024, 11, 14, 18),
-            Decimal("1.0"),
-        ),
-        # qa1：上半年 2 天事假
-        (
-            people["qa1"],
-            "personal",
-            "个人事务",
-            _dt(2024, 6, 10, 9),
-            _dt(2024, 6, 11, 18),
-            Decimal("2.0"),
         ),
     ]
 
@@ -579,7 +565,9 @@ def seed_attendance_2024(employees):
 
 def main():
     parser = argparse.ArgumentParser(description="HRMS 数据初始化工具")
-    parser.add_argument("--force", action="store_true", help="强制执行（会先清空数据库）")
+    parser.add_argument(
+        "--force", action="store_true", help="强制执行（会先清空数据库）"
+    )
     args = parser.parse_args()
 
     if not check_should_run(args.force):
@@ -599,6 +587,7 @@ def main():
     seed_performance_2024_h1_h2(employees)
 
     print("\n初始化完成。")
+
 
 if __name__ == "__main__":
     main()

@@ -4,7 +4,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('organization', '0003_add_cycle_trigger'),
+        ("organization", "0003_add_cycle_trigger"),
     ]
 
     operations = [

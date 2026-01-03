@@ -1,10 +1,11 @@
 from django.db import migrations
 from django.contrib.postgres.operations import BtreeGistExtension
 
+
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('leave', '0003_alter_leaveapply_create_by_alter_leaveapply_id_and_more'),
+        ("leave", "0003_alter_leaveapply_create_by_alter_leaveapply_id_and_more"),
     ]
 
     operations = [
@@ -21,6 +22,6 @@ class Migration(migrations.Migration):
             reverse_sql="""
             ALTER TABLE leave_time_segment
             DROP CONSTRAINT IF EXISTS no_leave_overlap;
-            """
+            """,
         ),
     ]

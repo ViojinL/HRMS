@@ -7,31 +7,80 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='AuditLog',
+            name="AuditLog",
             fields=[
-                ('id', models.BigAutoField(primary_key=True, serialize=False)),
-                ('table_name', models.CharField(blank=True, max_length=50, null=True, verbose_name='模块/表名')),
-                ('record_id', models.CharField(blank=True, max_length=50, null=True, verbose_name='记录ID/URL')),
-                ('oper_type', models.CharField(choices=[('INSERT', '新增'), ('UPDATE', '修改'), ('DELETE', '删除'), ('LOGIN', '登录'), ('LOGOUT', '登出'), ('ACCESS', '访问'), ('APPROVE', '审批')], max_length=20, verbose_name='操作类型')),
-                ('summary', models.CharField(blank=True, max_length=200, null=True, verbose_name='操作摘要')),
-                ('old_data', models.JSONField(blank=True, null=True, verbose_name='操作前数据')),
-                ('new_data', models.JSONField(blank=True, null=True, verbose_name='操作后数据')),
-                ('oper_user', models.CharField(max_length=32, verbose_name='操作人')),
-                ('oper_time', models.DateTimeField(auto_now_add=True, verbose_name='操作时间')),
-                ('ip_address', models.GenericIPAddressField(blank=True, null=True, verbose_name='IP地址')),
-                ('audit_date', models.DateField(auto_now_add=True, verbose_name='审计日期')),
-                ('is_deleted', models.BooleanField(default=False, verbose_name='逻辑删除')),
+                ("id", models.BigAutoField(primary_key=True, serialize=False)),
+                (
+                    "table_name",
+                    models.CharField(
+                        blank=True, max_length=50, null=True, verbose_name="模块/表名"
+                    ),
+                ),
+                (
+                    "record_id",
+                    models.CharField(
+                        blank=True, max_length=50, null=True, verbose_name="记录ID/URL"
+                    ),
+                ),
+                (
+                    "oper_type",
+                    models.CharField(
+                        choices=[
+                            ("INSERT", "新增"),
+                            ("UPDATE", "修改"),
+                            ("DELETE", "删除"),
+                            ("LOGIN", "登录"),
+                            ("LOGOUT", "登出"),
+                            ("ACCESS", "访问"),
+                            ("APPROVE", "审批"),
+                        ],
+                        max_length=20,
+                        verbose_name="操作类型",
+                    ),
+                ),
+                (
+                    "summary",
+                    models.CharField(
+                        blank=True, max_length=200, null=True, verbose_name="操作摘要"
+                    ),
+                ),
+                (
+                    "old_data",
+                    models.JSONField(blank=True, null=True, verbose_name="操作前数据"),
+                ),
+                (
+                    "new_data",
+                    models.JSONField(blank=True, null=True, verbose_name="操作后数据"),
+                ),
+                ("oper_user", models.CharField(max_length=32, verbose_name="操作人")),
+                (
+                    "oper_time",
+                    models.DateTimeField(auto_now_add=True, verbose_name="操作时间"),
+                ),
+                (
+                    "ip_address",
+                    models.GenericIPAddressField(
+                        blank=True, null=True, verbose_name="IP地址"
+                    ),
+                ),
+                (
+                    "audit_date",
+                    models.DateField(auto_now_add=True, verbose_name="审计日期"),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(default=False, verbose_name="逻辑删除"),
+                ),
             ],
             options={
-                'verbose_name': '审计日志',
-                'verbose_name_plural': '审计日志',
-                'db_table': 'hrms_audit',
-                'ordering': ['-oper_time'],
+                "verbose_name": "审计日志",
+                "verbose_name_plural": "审计日志",
+                "db_table": "hrms_audit",
+                "ordering": ["-oper_time"],
             },
         ),
     ]

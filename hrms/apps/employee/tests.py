@@ -4,6 +4,7 @@ from apps.organization.models import Organization
 from apps.employee.models import Employee
 from datetime import date
 
+
 class EmployeeModelTests(TestCase):
     def test_create_employee(self):
         org = Organization.objects.create(
@@ -13,7 +14,7 @@ class EmployeeModelTests(TestCase):
             effective_time=timezone.now(),
             status="enabled",
             create_by="test",
-            update_by="test"
+            update_by="test",
         )
         emp = Employee.objects.create(
             emp_id="E001",
@@ -29,7 +30,7 @@ class EmployeeModelTests(TestCase):
             employment_type="full_time",
             emp_status="active",
             create_by="test",
-            update_by="test"
+            update_by="test",
         )
         self.assertEqual(emp.emp_name, "John Doe")
         self.assertEqual(str(emp), "John Doe (E001)")

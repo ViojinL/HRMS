@@ -1,9 +1,13 @@
 from django.db import migrations
 
+
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('organization', '0002_alter_organization_create_by_alter_organization_id_and_more'),
+        (
+            "organization",
+            "0002_alter_organization_create_by_alter_organization_id_and_more",
+        ),
     ]
 
     operations = [
@@ -52,6 +56,6 @@ class Migration(migrations.Migration):
             reverse_sql="""
             DROP TRIGGER IF EXISTS trigger_check_org_cycle ON organization;
             DROP FUNCTION IF EXISTS check_org_cycle;
-            """
+            """,
         ),
     ]

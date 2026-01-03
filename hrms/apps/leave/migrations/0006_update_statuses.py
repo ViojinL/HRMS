@@ -2,41 +2,46 @@ from django.db import migrations, models
 
 
 STATUS_MAP = {
-    'pending': 'reviewing',
-    'approving': 'reviewing',
-    'cancelled': 'rejected',
-    'invalid': 'rejected',
+    "pending": "reviewing",
+    "approving": "reviewing",
+    "cancelled": "rejected",
+    "invalid": "rejected",
 }
 
 
 def forwards(apps, schema_editor):
-    LeaveApply = apps.get_model('leave', 'LeaveApply')
+    LeaveApply = apps.get_model("leave", "LeaveApply")
     for old, new in STATUS_MAP.items():
         LeaveApply.objects.filter(apply_status=old).update(apply_status=new)
 
 
 def backwards(apps, schema_editor):
     # Best-effort rollback: map to reviewing unless previously rejected
-    LeaveApply = apps.get_model('leave', 'LeaveApply')
-    LeaveApply.objects.filter(apply_status='reviewing').update(apply_status='pending')
-    LeaveApply.objects.filter(apply_status='rejected').update(apply_status='cancelled')
+    LeaveApply = apps.get_model("leave", "LeaveApply")
+    LeaveApply.objects.filter(apply_status="reviewing").update(apply_status="pending")
+    LeaveApply.objects.filter(apply_status="rejected").update(apply_status="cancelled")
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('leave', '0005_check_status_flow'),
+        ("leave", "0005_check_status_flow"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='leaveapply',
-            name='apply_status',
+            model_name="leaveapply",
+            name="apply_status",
             field=models.CharField(
-                choices=[('reviewing', '审核中'), ('approved', '已批准'), ('rejected', '已拒绝'), ('completed', '已完成')],
-                default='reviewing',
+                choices=[
+                    ("reviewing", "审核中"),
+                    ("approved", "已批准"),
+                    ("rejected", "已拒绝"),
+                    ("completed", "已完成"),
+                ],
+                default="reviewing",
                 max_length=20,
-                verbose_name='申请状态',
+                verbose_name="申请状态",
             ),
         ),
         migrations.RunSQL(

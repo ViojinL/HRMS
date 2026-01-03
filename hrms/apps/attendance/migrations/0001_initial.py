@@ -10,34 +10,149 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('employee', '0004_alter_employee_create_by_alter_employee_id_and_more'),
+        ("employee", "0004_alter_employee_create_by_alter_employee_id_and_more"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Attendance',
+            name="Attendance",
             fields=[
-                ('id', models.CharField(default=uuid.uuid4, editable=False, help_text='主键ID，采用UUID生成', max_length=50, primary_key=True, serialize=False)),
-                ('is_deleted', models.BooleanField(default=False, help_text='逻辑删除标识（禁止物理删除）', verbose_name='逻辑删除标识')),
-                ('create_time', models.DateTimeField(auto_now_add=True, help_text='创建时间（禁止手动修改）', verbose_name='创建时间')),
-                ('create_by', models.CharField(help_text='创建人（关联用户表 ID）', max_length=64, verbose_name='创建人')),
-                ('update_time', models.DateTimeField(auto_now=True, help_text='更新时间（触发器自动更新）', verbose_name='更新时间')),
-                ('update_by', models.CharField(help_text='更新人（关联用户表 ID）', max_length=64, verbose_name='更新人')),
-                ('attendance_date', models.DateField(verbose_name='考勤日期')),
-                ('attendance_type', models.CharField(choices=[('check_in', '打卡'), ('field', '外勤'), ('overtime', '加班'), ('supplement', '补卡')], max_length=20, verbose_name='考勤类型')),
-                ('check_in_time', models.DateTimeField(blank=True, null=True, verbose_name='上班打卡时间')),
-                ('check_out_time', models.DateTimeField(blank=True, null=True, verbose_name='下班打卡时间')),
-                ('attendance_status', models.CharField(choices=[('normal', '正常'), ('late', '迟到'), ('early_leave', '早退'), ('absent', '旷工'), ('leave', '请假'), ('field', '外勤'), ('overtime', '加班')], max_length=20, verbose_name='考勤状态')),
-                ('exception_reason', models.TextField(blank=True, null=True, verbose_name='异常原因')),
-                ('appeal_status', models.CharField(choices=[('none', '无申诉'), ('pending', '申诉中'), ('approved', '申诉通过'), ('rejected', '申诉拒绝')], default='none', max_length=20, verbose_name='申诉状态')),
-                ('emp', models.ForeignKey(on_delete=django.db.models.deletion.RESTRICT, related_name='attendance_records', to='employee.employee', verbose_name='员工')),
+                (
+                    "id",
+                    models.CharField(
+                        default=uuid.uuid4,
+                        editable=False,
+                        help_text="主键ID，采用UUID生成",
+                        max_length=50,
+                        primary_key=True,
+                        serialize=False,
+                    ),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(
+                        default=False,
+                        help_text="逻辑删除标识（禁止物理删除）",
+                        verbose_name="逻辑删除标识",
+                    ),
+                ),
+                (
+                    "create_time",
+                    models.DateTimeField(
+                        auto_now_add=True,
+                        help_text="创建时间（禁止手动修改）",
+                        verbose_name="创建时间",
+                    ),
+                ),
+                (
+                    "create_by",
+                    models.CharField(
+                        help_text="创建人（关联用户表 ID）",
+                        max_length=64,
+                        verbose_name="创建人",
+                    ),
+                ),
+                (
+                    "update_time",
+                    models.DateTimeField(
+                        auto_now=True,
+                        help_text="更新时间（触发器自动更新）",
+                        verbose_name="更新时间",
+                    ),
+                ),
+                (
+                    "update_by",
+                    models.CharField(
+                        help_text="更新人（关联用户表 ID）",
+                        max_length=64,
+                        verbose_name="更新人",
+                    ),
+                ),
+                ("attendance_date", models.DateField(verbose_name="考勤日期")),
+                (
+                    "attendance_type",
+                    models.CharField(
+                        choices=[
+                            ("check_in", "打卡"),
+                            ("field", "外勤"),
+                            ("overtime", "加班"),
+                            ("supplement", "补卡"),
+                        ],
+                        max_length=20,
+                        verbose_name="考勤类型",
+                    ),
+                ),
+                (
+                    "check_in_time",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="上班打卡时间"
+                    ),
+                ),
+                (
+                    "check_out_time",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="下班打卡时间"
+                    ),
+                ),
+                (
+                    "attendance_status",
+                    models.CharField(
+                        choices=[
+                            ("normal", "正常"),
+                            ("late", "迟到"),
+                            ("early_leave", "早退"),
+                            ("absent", "旷工"),
+                            ("leave", "请假"),
+                            ("field", "外勤"),
+                            ("overtime", "加班"),
+                        ],
+                        max_length=20,
+                        verbose_name="考勤状态",
+                    ),
+                ),
+                (
+                    "exception_reason",
+                    models.TextField(blank=True, null=True, verbose_name="异常原因"),
+                ),
+                (
+                    "appeal_status",
+                    models.CharField(
+                        choices=[
+                            ("none", "无申诉"),
+                            ("pending", "申诉中"),
+                            ("approved", "申诉通过"),
+                            ("rejected", "申诉拒绝"),
+                        ],
+                        default="none",
+                        max_length=20,
+                        verbose_name="申诉状态",
+                    ),
+                ),
+                (
+                    "emp",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.RESTRICT,
+                        related_name="attendance_records",
+                        to="employee.employee",
+                        verbose_name="员工",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': '考勤记录',
-                'verbose_name_plural': '考勤记录',
-                'db_table': 'attendance',
-                'ordering': ['-attendance_date'],
-                'indexes': [models.Index(fields=['emp', 'attendance_date'], name='attendance_emp_id_a10300_idx'), models.Index(fields=['attendance_status', 'attendance_date'], name='attendance_attenda_ce6e9c_idx')],
+                "verbose_name": "考勤记录",
+                "verbose_name_plural": "考勤记录",
+                "db_table": "attendance",
+                "ordering": ["-attendance_date"],
+                "indexes": [
+                    models.Index(
+                        fields=["emp", "attendance_date"],
+                        name="attendance_emp_id_a10300_idx",
+                    ),
+                    models.Index(
+                        fields=["attendance_status", "attendance_date"],
+                        name="attendance_attenda_ce6e9c_idx",
+                    ),
+                ],
             },
         ),
     ]

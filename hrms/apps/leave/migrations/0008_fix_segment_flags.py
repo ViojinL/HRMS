@@ -4,7 +4,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('leave', '0007_segment_active_and_overlap'),
+        ("leave", "0007_segment_active_and_overlap"),
     ]
 
     operations = [

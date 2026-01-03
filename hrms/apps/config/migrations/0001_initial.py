@@ -8,32 +8,125 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='LeaveReasonConfig',
+            name="LeaveReasonConfig",
             fields=[
-                ('id', models.CharField(default=uuid.uuid4, editable=False, help_text='主键ID，采用UUID生成', max_length=50, primary_key=True, serialize=False)),
-                ('is_deleted', models.BooleanField(default=False, help_text='逻辑删除标识（禁止物理删除）', verbose_name='逻辑删除标识')),
-                ('create_time', models.DateTimeField(auto_now_add=True, help_text='创建时间（禁止手动修改）', verbose_name='创建时间')),
-                ('create_by', models.CharField(help_text='创建人（关联用户表 ID）', max_length=64, verbose_name='创建人')),
-                ('update_time', models.DateTimeField(auto_now=True, help_text='更新时间（触发器自动更新）', verbose_name='更新时间')),
-                ('update_by', models.CharField(help_text='更新人（关联用户表 ID）', max_length=64, verbose_name='更新人')),
-                ('code', models.CharField(help_text='全局唯一码，推荐使用拼音/英文', max_length=32, unique=True, verbose_name='编码')),
-                ('name', models.CharField(help_text='例如“年假”“事假”', max_length=64, verbose_name='名称')),
-                ('description', models.TextField(blank=True, help_text='用于前端/审批提示的说明', verbose_name='描述')),
-                ('max_days', models.DecimalField(decimal_places=2, default=0, help_text='自动校验最长可请假天数', max_digits=5, verbose_name='最长天数')),
-                ('requires_attachment', models.BooleanField(default=False, help_text='如病假是否必须上传病假条', verbose_name='是否需要附件')),
-                ('status', models.CharField(choices=[('enabled', '启用'), ('disabled', '禁用')], default='enabled', max_length=20, verbose_name='状态')),
-                ('sort_order', models.PositiveSmallIntegerField(default=10, help_text='越小越靠前', verbose_name='排序')),
+                (
+                    "id",
+                    models.CharField(
+                        default=uuid.uuid4,
+                        editable=False,
+                        help_text="主键ID，采用UUID生成",
+                        max_length=50,
+                        primary_key=True,
+                        serialize=False,
+                    ),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(
+                        default=False,
+                        help_text="逻辑删除标识（禁止物理删除）",
+                        verbose_name="逻辑删除标识",
+                    ),
+                ),
+                (
+                    "create_time",
+                    models.DateTimeField(
+                        auto_now_add=True,
+                        help_text="创建时间（禁止手动修改）",
+                        verbose_name="创建时间",
+                    ),
+                ),
+                (
+                    "create_by",
+                    models.CharField(
+                        help_text="创建人（关联用户表 ID）",
+                        max_length=64,
+                        verbose_name="创建人",
+                    ),
+                ),
+                (
+                    "update_time",
+                    models.DateTimeField(
+                        auto_now=True,
+                        help_text="更新时间（触发器自动更新）",
+                        verbose_name="更新时间",
+                    ),
+                ),
+                (
+                    "update_by",
+                    models.CharField(
+                        help_text="更新人（关联用户表 ID）",
+                        max_length=64,
+                        verbose_name="更新人",
+                    ),
+                ),
+                (
+                    "code",
+                    models.CharField(
+                        help_text="全局唯一码，推荐使用拼音/英文",
+                        max_length=32,
+                        unique=True,
+                        verbose_name="编码",
+                    ),
+                ),
+                (
+                    "name",
+                    models.CharField(
+                        help_text="例如“年假”“事假”", max_length=64, verbose_name="名称"
+                    ),
+                ),
+                (
+                    "description",
+                    models.TextField(
+                        blank=True,
+                        help_text="用于前端/审批提示的说明",
+                        verbose_name="描述",
+                    ),
+                ),
+                (
+                    "max_days",
+                    models.DecimalField(
+                        decimal_places=2,
+                        default=0,
+                        help_text="自动校验最长可请假天数",
+                        max_digits=5,
+                        verbose_name="最长天数",
+                    ),
+                ),
+                (
+                    "requires_attachment",
+                    models.BooleanField(
+                        default=False,
+                        help_text="如病假是否必须上传病假条",
+                        verbose_name="是否需要附件",
+                    ),
+                ),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[("enabled", "启用"), ("disabled", "禁用")],
+                        default="enabled",
+                        max_length=20,
+                        verbose_name="状态",
+                    ),
+                ),
+                (
+                    "sort_order",
+                    models.PositiveSmallIntegerField(
+                        default=10, help_text="越小越靠前", verbose_name="排序"
+                    ),
+                ),
             ],
             options={
-                'verbose_name': '请假理由配置',
-                'verbose_name_plural': '请假理由配置',
-                'db_table': 'config_leave_reason',
-                'ordering': ['sort_order', 'code'],
+                "verbose_name": "请假理由配置",
+                "verbose_name_plural": "请假理由配置",
+                "db_table": "config_leave_reason",
+                "ordering": ["sort_order", "code"],
             },
         ),
     ]

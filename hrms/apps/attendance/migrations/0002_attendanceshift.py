@@ -7,31 +7,96 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('attendance', '0001_initial'),
+        ("attendance", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='AttendanceShift',
+            name="AttendanceShift",
             fields=[
-                ('id', models.CharField(default=uuid.uuid4, editable=False, help_text='主键ID，采用UUID生成', max_length=50, primary_key=True, serialize=False)),
-                ('is_deleted', models.BooleanField(default=False, help_text='逻辑删除标识（禁止物理删除）', verbose_name='逻辑删除标识')),
-                ('create_time', models.DateTimeField(auto_now_add=True, help_text='创建时间（禁止手动修改）', verbose_name='创建时间')),
-                ('update_time', models.DateTimeField(auto_now=True, help_text='更新时间（触发器自动更新）', verbose_name='更新时间')),
-                ('shift_name', models.CharField(default='默认班次', max_length=64, verbose_name='班次名称')),
-                ('check_in_start_time', models.TimeField(verbose_name='上班打卡开始时间')),
-                ('check_in_end_time', models.TimeField(verbose_name='上班打卡结束时间')),
-                ('check_out_start_time', models.TimeField(verbose_name='下班打卡开始时间')),
-                ('check_out_end_time', models.TimeField(verbose_name='下班打卡结束时间')),
-                ('is_active', models.BooleanField(default=False, help_text='只有启用状态的班次会被系统作为当前考勤窗口', verbose_name='启用状态')),
-                ('create_by', models.CharField(default='system', max_length=64, verbose_name='创建人')),
-                ('update_by', models.CharField(default='system', max_length=64, verbose_name='更新人')),
+                (
+                    "id",
+                    models.CharField(
+                        default=uuid.uuid4,
+                        editable=False,
+                        help_text="主键ID，采用UUID生成",
+                        max_length=50,
+                        primary_key=True,
+                        serialize=False,
+                    ),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(
+                        default=False,
+                        help_text="逻辑删除标识（禁止物理删除）",
+                        verbose_name="逻辑删除标识",
+                    ),
+                ),
+                (
+                    "create_time",
+                    models.DateTimeField(
+                        auto_now_add=True,
+                        help_text="创建时间（禁止手动修改）",
+                        verbose_name="创建时间",
+                    ),
+                ),
+                (
+                    "update_time",
+                    models.DateTimeField(
+                        auto_now=True,
+                        help_text="更新时间（触发器自动更新）",
+                        verbose_name="更新时间",
+                    ),
+                ),
+                (
+                    "shift_name",
+                    models.CharField(
+                        default="默认班次", max_length=64, verbose_name="班次名称"
+                    ),
+                ),
+                (
+                    "check_in_start_time",
+                    models.TimeField(verbose_name="上班打卡开始时间"),
+                ),
+                (
+                    "check_in_end_time",
+                    models.TimeField(verbose_name="上班打卡结束时间"),
+                ),
+                (
+                    "check_out_start_time",
+                    models.TimeField(verbose_name="下班打卡开始时间"),
+                ),
+                (
+                    "check_out_end_time",
+                    models.TimeField(verbose_name="下班打卡结束时间"),
+                ),
+                (
+                    "is_active",
+                    models.BooleanField(
+                        default=False,
+                        help_text="只有启用状态的班次会被系统作为当前考勤窗口",
+                        verbose_name="启用状态",
+                    ),
+                ),
+                (
+                    "create_by",
+                    models.CharField(
+                        default="system", max_length=64, verbose_name="创建人"
+                    ),
+                ),
+                (
+                    "update_by",
+                    models.CharField(
+                        default="system", max_length=64, verbose_name="更新人"
+                    ),
+                ),
             ],
             options={
-                'verbose_name': '考勤班次',
-                'verbose_name_plural': '考勤班次',
-                'db_table': 'attendance_shift',
-                'ordering': ['-update_time'],
+                "verbose_name": "考勤班次",
+                "verbose_name_plural": "考勤班次",
+                "db_table": "attendance_shift",
+                "ordering": ["-update_time"],
             },
         ),
     ]

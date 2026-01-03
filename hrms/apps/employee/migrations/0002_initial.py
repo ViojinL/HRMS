@@ -9,19 +9,29 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('employee', '0001_initial'),
-        ('organization', '0001_initial'),
+        ("employee", "0001_initial"),
+        ("organization", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='employee',
-            name='org',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.RESTRICT, related_name='employees', to='organization.organization', verbose_name='所属组织'),
+            model_name="employee",
+            name="org",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.RESTRICT,
+                related_name="employees",
+                to="organization.organization",
+                verbose_name="所属组织",
+            ),
         ),
         migrations.AddField(
-            model_name='employeehistory',
-            name='emp',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='history_records', to='employee.employee', verbose_name='关联员工'),
+            model_name="employeehistory",
+            name="emp",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="history_records",
+                to="employee.employee",
+                verbose_name="关联员工",
+            ),
         ),
     ]

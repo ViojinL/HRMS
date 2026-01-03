@@ -7,38 +7,68 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('employee', '0003_employee_user'),
+        ("employee", "0003_employee_user"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='employee',
-            name='create_by',
-            field=models.CharField(help_text='创建人（关联用户表 ID）', max_length=64, verbose_name='创建人'),
+            model_name="employee",
+            name="create_by",
+            field=models.CharField(
+                help_text="创建人（关联用户表 ID）",
+                max_length=64,
+                verbose_name="创建人",
+            ),
         ),
         migrations.AlterField(
-            model_name='employee',
-            name='id',
-            field=models.CharField(default=uuid.uuid4, editable=False, help_text='主键ID，采用UUID生成', max_length=50, primary_key=True, serialize=False),
+            model_name="employee",
+            name="id",
+            field=models.CharField(
+                default=uuid.uuid4,
+                editable=False,
+                help_text="主键ID，采用UUID生成",
+                max_length=50,
+                primary_key=True,
+                serialize=False,
+            ),
         ),
         migrations.AlterField(
-            model_name='employee',
-            name='update_by',
-            field=models.CharField(help_text='更新人（关联用户表 ID）', max_length=64, verbose_name='更新人'),
+            model_name="employee",
+            name="update_by",
+            field=models.CharField(
+                help_text="更新人（关联用户表 ID）",
+                max_length=64,
+                verbose_name="更新人",
+            ),
         ),
         migrations.AlterField(
-            model_name='employeehistory',
-            name='create_by',
-            field=models.CharField(help_text='创建人（关联用户表 ID）', max_length=64, verbose_name='创建人'),
+            model_name="employeehistory",
+            name="create_by",
+            field=models.CharField(
+                help_text="创建人（关联用户表 ID）",
+                max_length=64,
+                verbose_name="创建人",
+            ),
         ),
         migrations.AlterField(
-            model_name='employeehistory',
-            name='id',
-            field=models.CharField(default=uuid.uuid4, editable=False, help_text='主键ID，采用UUID生成', max_length=50, primary_key=True, serialize=False),
+            model_name="employeehistory",
+            name="id",
+            field=models.CharField(
+                default=uuid.uuid4,
+                editable=False,
+                help_text="主键ID，采用UUID生成",
+                max_length=50,
+                primary_key=True,
+                serialize=False,
+            ),
         ),
         migrations.AlterField(
-            model_name='employeehistory',
-            name='update_by',
-            field=models.CharField(help_text='更新人（关联用户表 ID）', max_length=64, verbose_name='更新人'),
+            model_name="employeehistory",
+            name="update_by",
+            field=models.CharField(
+                help_text="更新人（关联用户表 ID）",
+                max_length=64,
+                verbose_name="更新人",
+            ),
         ),
     ]

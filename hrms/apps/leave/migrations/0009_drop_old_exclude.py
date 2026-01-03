@@ -1,9 +1,10 @@
 from django.db import migrations
 
+
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('leave', '0008_fix_segment_flags'),
+        ("leave", "0008_fix_segment_flags"),
     ]
 
     operations = [

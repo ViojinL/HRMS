@@ -7,15 +7,22 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('employee', '0002_initial'),
-        ('leave', '0001_initial'),
+        ("employee", "0002_initial"),
+        ("leave", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='leavetimesegment',
-            name='emp',
-            field=models.ForeignKey(default=1, help_text='冗余字段，用于数据库时间重叠约束', on_delete=django.db.models.deletion.CASCADE, related_name='leave_segments', to='employee.employee', verbose_name='员工'),
+            model_name="leavetimesegment",
+            name="emp",
+            field=models.ForeignKey(
+                default=1,
+                help_text="冗余字段，用于数据库时间重叠约束",
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="leave_segments",
+                to="employee.employee",
+                verbose_name="员工",
+            ),
             preserve_default=False,
         ),
     ]

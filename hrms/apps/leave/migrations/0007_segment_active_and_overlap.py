@@ -2,8 +2,6 @@ from django.db import migrations, models
 
 
 def seed_segment_active(apps, schema_editor):
-    LeaveTimeSegment = apps.get_model('leave', 'LeaveTimeSegment')
-    LeaveApply = apps.get_model('leave', 'LeaveApply')
     # Use raw SQL to avoid ORM join performance issues
     with schema_editor.connection.cursor() as cursor:
         cursor.execute(
@@ -21,24 +19,24 @@ def seed_segment_active(apps, schema_editor):
 
 def reverse_seed_segment_active(apps, schema_editor):
     # On rollback, default everything back to TRUE
-    LeaveTimeSegment = apps.get_model('leave', 'LeaveTimeSegment')
+    LeaveTimeSegment = apps.get_model("leave", "LeaveTimeSegment")
     LeaveTimeSegment.objects.update(is_active=True)
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('leave', '0006_update_statuses'),
+        ("leave", "0006_update_statuses"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='leavetimesegment',
-            name='is_active',
+            model_name="leavetimesegment",
+            name="is_active",
             field=models.BooleanField(
                 default=True,
-                verbose_name='占用冲突校验',
-                help_text='True 时参与时间重叠校验；已拒绝/已完成后设为 False 以允许后续申请',
+                verbose_name="占用冲突校验",
+                help_text="True 时参与时间重叠校验；已拒绝/已完成后设为 False 以允许后续申请",
             ),
         ),
         migrations.RunSQL(

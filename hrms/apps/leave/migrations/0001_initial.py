@@ -10,52 +10,212 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('employee', '0002_initial'),
+        ("employee", "0002_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='LeaveApply',
+            name="LeaveApply",
             fields=[
-                ('id', models.CharField(default=uuid.uuid4, editable=False, help_text='主键ID，采用UUID生成', max_length=32, primary_key=True, serialize=False)),
-                ('is_deleted', models.BooleanField(default=False, help_text='逻辑删除标识（禁止物理删除）', verbose_name='逻辑删除标识')),
-                ('create_time', models.DateTimeField(auto_now_add=True, help_text='创建时间（禁止手动修改）', verbose_name='创建时间')),
-                ('create_by', models.CharField(help_text='创建人（关联用户表 ID）', max_length=32, verbose_name='创建人')),
-                ('update_time', models.DateTimeField(auto_now=True, help_text='更新时间（触发器自动更新）', verbose_name='更新时间')),
-                ('update_by', models.CharField(help_text='更新人（关联用户表 ID）', max_length=32, verbose_name='更新人')),
-                ('leave_type', models.CharField(choices=[('personal', '事假'), ('sick', '病假'), ('annual', '年假'), ('marriage', '婚假'), ('maternity', '产假'), ('paternity', '陪产假'), ('funeral', '丧假'), ('injury', '工伤假'), ('lieu', '调休假')], max_length=20, verbose_name='请假类型')),
-                ('apply_status', models.CharField(choices=[('pending', '待审批'), ('approving', '审批中'), ('approved', '已批准'), ('rejected', '已拒绝'), ('cancelled', '已撤销'), ('invalid', '已作废')], default='pending', max_length=20, verbose_name='申请状态')),
-                ('apply_time', models.DateTimeField(auto_now_add=True, verbose_name='提交时间')),
-                ('reason', models.TextField(blank=True, null=True, verbose_name='请假事由')),
-                ('attachment_url', models.CharField(blank=True, max_length=255, null=True, verbose_name='附件路径')),
-                ('total_days', models.DecimalField(decimal_places=2, max_digits=10, verbose_name='总天数')),
-                ('emp', models.ForeignKey(help_text='申请人工号', on_delete=django.db.models.deletion.RESTRICT, related_name='leave_applications', to='employee.employee', verbose_name='申请人')),
+                (
+                    "id",
+                    models.CharField(
+                        default=uuid.uuid4,
+                        editable=False,
+                        help_text="主键ID，采用UUID生成",
+                        max_length=32,
+                        primary_key=True,
+                        serialize=False,
+                    ),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(
+                        default=False,
+                        help_text="逻辑删除标识（禁止物理删除）",
+                        verbose_name="逻辑删除标识",
+                    ),
+                ),
+                (
+                    "create_time",
+                    models.DateTimeField(
+                        auto_now_add=True,
+                        help_text="创建时间（禁止手动修改）",
+                        verbose_name="创建时间",
+                    ),
+                ),
+                (
+                    "create_by",
+                    models.CharField(
+                        help_text="创建人（关联用户表 ID）",
+                        max_length=32,
+                        verbose_name="创建人",
+                    ),
+                ),
+                (
+                    "update_time",
+                    models.DateTimeField(
+                        auto_now=True,
+                        help_text="更新时间（触发器自动更新）",
+                        verbose_name="更新时间",
+                    ),
+                ),
+                (
+                    "update_by",
+                    models.CharField(
+                        help_text="更新人（关联用户表 ID）",
+                        max_length=32,
+                        verbose_name="更新人",
+                    ),
+                ),
+                (
+                    "leave_type",
+                    models.CharField(
+                        choices=[
+                            ("personal", "事假"),
+                            ("sick", "病假"),
+                            ("annual", "年假"),
+                            ("marriage", "婚假"),
+                            ("maternity", "产假"),
+                            ("paternity", "陪产假"),
+                            ("funeral", "丧假"),
+                            ("injury", "工伤假"),
+                            ("lieu", "调休假"),
+                        ],
+                        max_length=20,
+                        verbose_name="请假类型",
+                    ),
+                ),
+                (
+                    "apply_status",
+                    models.CharField(
+                        choices=[
+                            ("pending", "待审批"),
+                            ("approving", "审批中"),
+                            ("approved", "已批准"),
+                            ("rejected", "已拒绝"),
+                            ("cancelled", "已撤销"),
+                            ("invalid", "已作废"),
+                        ],
+                        default="pending",
+                        max_length=20,
+                        verbose_name="申请状态",
+                    ),
+                ),
+                (
+                    "apply_time",
+                    models.DateTimeField(auto_now_add=True, verbose_name="提交时间"),
+                ),
+                (
+                    "reason",
+                    models.TextField(blank=True, null=True, verbose_name="请假事由"),
+                ),
+                (
+                    "attachment_url",
+                    models.CharField(
+                        blank=True, max_length=255, null=True, verbose_name="附件路径"
+                    ),
+                ),
+                (
+                    "total_days",
+                    models.DecimalField(
+                        decimal_places=2, max_digits=10, verbose_name="总天数"
+                    ),
+                ),
+                (
+                    "emp",
+                    models.ForeignKey(
+                        help_text="申请人工号",
+                        on_delete=django.db.models.deletion.RESTRICT,
+                        related_name="leave_applications",
+                        to="employee.employee",
+                        verbose_name="申请人",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': '请假申请',
-                'verbose_name_plural': '请假申请',
-                'db_table': 'leave_apply',
-                'ordering': ['-create_time'],
+                "verbose_name": "请假申请",
+                "verbose_name_plural": "请假申请",
+                "db_table": "leave_apply",
+                "ordering": ["-create_time"],
             },
         ),
         migrations.CreateModel(
-            name='LeaveTimeSegment',
+            name="LeaveTimeSegment",
             fields=[
-                ('id', models.CharField(default=uuid.uuid4, editable=False, help_text='主键ID，采用UUID生成', max_length=32, primary_key=True, serialize=False)),
-                ('is_deleted', models.BooleanField(default=False, help_text='逻辑删除标识（禁止物理删除）', verbose_name='逻辑删除标识')),
-                ('create_time', models.DateTimeField(auto_now_add=True, help_text='创建时间（禁止手动修改）', verbose_name='创建时间')),
-                ('create_by', models.CharField(help_text='创建人（关联用户表 ID）', max_length=32, verbose_name='创建人')),
-                ('update_time', models.DateTimeField(auto_now=True, help_text='更新时间（触发器自动更新）', verbose_name='更新时间')),
-                ('update_by', models.CharField(help_text='更新人（关联用户表 ID）', max_length=32, verbose_name='更新人')),
-                ('leave_start_time', models.DateTimeField(verbose_name='开始时间')),
-                ('leave_end_time', models.DateTimeField(verbose_name='结束时间')),
-                ('segment_days', models.DecimalField(decimal_places=2, max_digits=10, verbose_name='该段天数')),
-                ('leave', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='segments', to='leave.leaveapply', verbose_name='关联请假单')),
+                (
+                    "id",
+                    models.CharField(
+                        default=uuid.uuid4,
+                        editable=False,
+                        help_text="主键ID，采用UUID生成",
+                        max_length=32,
+                        primary_key=True,
+                        serialize=False,
+                    ),
+                ),
+                (
+                    "is_deleted",
+                    models.BooleanField(
+                        default=False,
+                        help_text="逻辑删除标识（禁止物理删除）",
+                        verbose_name="逻辑删除标识",
+                    ),
+                ),
+                (
+                    "create_time",
+                    models.DateTimeField(
+                        auto_now_add=True,
+                        help_text="创建时间（禁止手动修改）",
+                        verbose_name="创建时间",
+                    ),
+                ),
+                (
+                    "create_by",
+                    models.CharField(
+                        help_text="创建人（关联用户表 ID）",
+                        max_length=32,
+                        verbose_name="创建人",
+                    ),
+                ),
+                (
+                    "update_time",
+                    models.DateTimeField(
+                        auto_now=True,
+                        help_text="更新时间（触发器自动更新）",
+                        verbose_name="更新时间",
+                    ),
+                ),
+                (
+                    "update_by",
+                    models.CharField(
+                        help_text="更新人（关联用户表 ID）",
+                        max_length=32,
+                        verbose_name="更新人",
+                    ),
+                ),
+                ("leave_start_time", models.DateTimeField(verbose_name="开始时间")),
+                ("leave_end_time", models.DateTimeField(verbose_name="结束时间")),
+                (
+                    "segment_days",
+                    models.DecimalField(
+                        decimal_places=2, max_digits=10, verbose_name="该段天数"
+                    ),
+                ),
+                (
+                    "leave",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="segments",
+                        to="leave.leaveapply",
+                        verbose_name="关联请假单",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': '请假时间段',
-                'verbose_name_plural': '请假时间段',
-                'db_table': 'leave_time_segment',
+                "verbose_name": "请假时间段",
+                "verbose_name_plural": "请假时间段",
+                "db_table": "leave_time_segment",
             },
         ),
     ]

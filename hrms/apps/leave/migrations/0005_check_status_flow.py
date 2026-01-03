@@ -1,9 +1,10 @@
 from django.db import migrations
 
+
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('leave', '0004_add_overlap_constraint'),
+        ("leave", "0004_add_overlap_constraint"),
     ]
 
     operations = [
@@ -40,6 +41,6 @@ class Migration(migrations.Migration):
             reverse_sql="""
             DROP TRIGGER IF EXISTS trigger_check_leave_status ON leave_apply;
             DROP FUNCTION IF EXISTS check_leave_status_flow;
-            """
+            """,
         ),
     ]
