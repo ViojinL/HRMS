@@ -44,12 +44,40 @@ pipeline {
     }
     stage('Lint') {
       steps {
-        echo 'Skipping lint'
+        sh 'docker compose -f ci/docker-compose.yml exec -T web black --check .'
+      }
+    }
+    stage('Security Scan') {
+      steps {
+        script {
+          def webContainer = sh(script: "docker compose -f ci/docker-compose.yml ps -q web", returnStdout: true).trim()
+          // Run bandit, don't fail build on issues, just report
+          sh "docker compose -f ci/docker-compose.yml exec -T web bandit -r hrms/apps -f json -o bandit_report.json || true"
+          sh "docker cp ${webContainer}:/app/bandit_report.json ."
+          archiveArtifacts artifacts: 'bandit_report.json', allowEmptyArchive: true
+        }
       }
     }
     stage('Test') {
       steps {
-        sh 'docker compose -f ci/docker-compose.yml exec -T web python hrms/manage.py test apps.performance'
+        script {
+          def webContainer = sh(script: "docker compose -f ci/docker-compose.yml ps -q web", returnStdout: true).trim()
+          // Run pytest with coverage and junit xml
+          // Return status code to handle failure after copying artifacts
+          def exitCode = sh(script: 'docker compose -f ci/docker-compose.yml exec -T web pytest --cov=hrms/apps --cov-report=xml:coverage.xml --junitxml=test-results.xml', returnStatus: true)
+          
+          // Copy artifacts out of container
+          sh "docker cp ${webContainer}:/app/test-results.xml ."
+          sh "docker cp ${webContainer}:/app/coverage.xml ."
+          
+          // publish reports
+          junit 'test-results.xml'
+          archiveArtifacts artifacts: 'coverage.xml'
+          
+          if (exitCode != 0) {
+            error("Tests failed")
+          }
+        }
       }
     }
     stage('Deploy') {

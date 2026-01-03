@@ -1,27 +1,18 @@
-课程设计功能清单
-环境与联动
+根系更新课程设计功能清单
 
-编写 Jenkinsfile，定义 Checkout、依赖安装、数据库迁移、触发脚本、测试、lint、部署等 stages。
-Jenkins 与仓库通过 webhook/凭据联动，默认分支推送自动触发。
-测试与质量保障
+# 已完成事项
+- [x] **Jenkins流水线搭建**：编写 Jenkinsfile，定义 Checkout、依赖安装、数据库迁移、触发脚本、测试、lint、部署等 stages。
+- [x] **环境联动**：Jenkins 与仓库通过 webhook/凭据联动，默认分支推送自动触发。
+- [x] **数据库同步**：CI 运行 migrate，执行 apply_triggers.py/apply_views.py 保持原生 SQL 规则同步。
+- [x] **Docker环境**：在 Docker Compose 下启动 PostgreSQL 和 Web 服务，保障测试/生产环境一致性。
+- [x] **自动化部署**：Jenkins 通过 SSH 自动部署到 VPS，包含 pip install、migrate、collectstatic、Gunicorn 重启、健康检查。
 
-在 apps/performance/tests/ 增加 PerformanceEvaluation 边界测试（缺失率、零权重、百分比四舍五入）。
-CI 阶段执行 python manage.py check、python manage.py test apps.performance、black --check .、ruff check apps utils 等命令。
-数据库与脚本同步
+# 待完成事项 (测试增强)
+- [x] **可视化单元测试**：配置 Jenkins 显示测试结果图表 (JUnit/XML)，不仅限控制台输出。
+- [x] **安全测试集成**：引入 `bandit` 等工具扫描代码，检测 potential XSS, SQL 注入等安全隐患，并生成报告。
+- [x] **代码覆盖率**：增加 `coverage` 报告，并在 Jenkins 中展示覆盖率趋势。
+- [x] **全面测试**：将测试范围从 `apps.performance` 扩展到全项目。
 
-CI 运行 python manage.py migrate，执行 apply_triggers.py/apply_views.py 保持原生 SQL 规则同步。
-可立项在 Docker Compose 下启动 PostgreSQL，保障测试环境一致性。
-部署与自动化
-
-Jenkins 通过 SSH 或 Docker 构建自动部署，包含 pip install、migrate、collectstatic、Gunicorn 重启等步骤。
-若没有生产服务器，可在流水线里模拟部署过程（打包、上传 artifact、运行部署脚本、健康检查）。
-可选扩展
-
-增加 pytest + coverage 报告，或 mypy/bandit 静态分析。
-引入性能测试（pytest-benchmark）、健康检查脚本、文档一致性校验。
-规则：每次 CI 完成后运行测试与部署脚本，形成可重复的自动化流程。
-
-完成情况
-
-- Jenkinsfile、ci/docker-compose.yml、scripts/deploy.sh 已构成本地 CI/CD 栈。
-- `apps.performance` 补充边界单元测试，同时通过 `requirements.txt` 明确依赖。
+# 原始需求 (已部分实现)
+- 在 apps/performance/tests/ 增加 PerformanceEvaluation 边界测试（缺失率、零权重、百分比四舍五入）。[已完成]
+- CI 阶段执行 lint (black/ruff)。[待恢复]
