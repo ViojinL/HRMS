@@ -67,4 +67,4 @@ class LeaveModelTests(TestCase):
             update_by="tests",
         )
         self.assertEqual(leave.segments.count(), 1)
-        self.assertEqual(leave.segments.first().id, segment.id)
+        self.assertEqual(str(leave.segments.first().id), str(segment.id))
