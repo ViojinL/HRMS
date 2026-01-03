@@ -9,7 +9,8 @@ pipeline {
     DEPLOY_DIR = '/srv/hrms'
     DOMAIN_NAME = 'hrms.kohinbox.top'
     PIP_BREAK_SYSTEM_PACKAGES = '1'
-    POSTGRES_HOST = '172.17.0.1'
+    POSTGRES_HOST = 'db'
+    PIP_BREAK_SYSTEM_PACKAGES = '1'
   }
   stages {
     stage('Checkout') {
@@ -19,7 +20,8 @@ pipeline {
     }
     stage('Start database') {
       steps {
-        sh 'docker compose -f ci/docker-compose.yml up -d db web'
+        sh 'docker compose -f ci/docker-compose.yml down --volumes --remove-orphans || true'
+        sh 'docker compose -f ci/docker-compose.yml up -d --remove-orphans db web'
         sh 'docker compose -f ci/docker-compose.yml ps'
       }
     }
@@ -120,7 +122,7 @@ pipeline {
   }
   post {
     always {
-      sh 'docker compose -f ci/docker-compose.yml down --volumes'
+      sh 'docker compose -f ci/docker-compose.yml down --volumes --remove-orphans'
     }
   }
 }

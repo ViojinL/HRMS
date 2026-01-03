@@ -1,4 +1,4 @@
-version: '3.9'
+
 services:
   db:
     image: postgres:16
@@ -7,8 +7,7 @@ services:
       POSTGRES_DB: hrms
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 1024linux.Q
-    ports:
-      - "5432:5432"
+
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "postgres"]
       interval: 5s
