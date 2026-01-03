@@ -64,7 +64,6 @@ pipeline {
       steps {
         script {
           // 解决 Jenkins HTML 样式被拦截的问题 (CSP)
-          System.setProperty("hudson.model.DirectoryBrowserSupport.CSP", "")
           
           def webContainer = sh(script: "docker compose -f ci/docker-compose.yml ps -q web", returnStdout: true).trim()
           
