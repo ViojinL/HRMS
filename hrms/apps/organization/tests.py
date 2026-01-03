@@ -1,1 +1,0 @@
-"""Organization tests placeholder."""
