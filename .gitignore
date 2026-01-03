@@ -36,8 +36,9 @@ node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-*.pem
-*.key
-.DS_Store
 /ci_pgdata/
 hrms.zip
+deploy-ci-key*
+*.pub
+*.key
+ssh-key*
