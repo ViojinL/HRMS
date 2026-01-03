@@ -80,33 +80,36 @@ pipeline {
           junit 'test-results.xml'
           archiveArtifacts artifacts: 'report.html,coverage.xml,htmlcov/**', allowEmptyArchive: true
 
-          // 将测试报告发布到左侧菜单
-          publishHTML([
-            allowMissing: false,
-            alwaysLinkToLastBuild: true,
-            keepAll: true,
-            reportDir: '.',
-            reportFiles: 'report.html',
-            reportName: '单元测试报告',
-            reportTitles: 'HRMS 测试详情'
-          ])
-
-          // 将代码覆盖率发布到左侧菜单
-          publishHTML([
-            allowMissing: false,
-            alwaysLinkToLastBuild: true,
-            keepAll: true,
-            reportDir: 'htmlcov',
-            reportFiles: 'index.html',
-            reportName: '代码覆盖率报告',
-            reportTitles: 'HRMS 覆盖率详情'
-          ])
+          // 使用 try-catch 保护 publishHTML，防止插件缺失导致流水线变黄
+          try {
+            publishHTML([
+                allowMissing: false,
+                alwaysLinkToLastBuild: true,
+                keepAll: true,
+                reportDir: '.',
+                reportFiles: 'report.html',
+                reportName: '单元测试报告',
+                reportTitles: 'HRMS 测试详情'
+            ])
+            publishHTML([
+                allowMissing: false,
+                alwaysLinkToLastBuild: true,
+                keepAll: true,
+                reportDir: 'htmlcov',
+                reportFiles: 'index.html',
+                reportName: '代码覆盖率报告',
+                reportTitles: 'HRMS 覆盖率详情'
+            ])
+          } catch (Exception e) {
+            echo "提示：无法使用高级可视化报告入口（可能缺少 HTML Publisher 插件），请通过 'Build Artifacts' 查看 HTML 文件。"
+          }
 
           if (exitCode != 0) {
-            echo "某些测试未通过，请查看生成的 HTML 报告。"
+            echo "警告：有测试用例未通过！"
             currentBuild.result = 'UNSTABLE'
           } else {
-            echo "恭喜！所有测试通过。"
+            echo "恭喜！所有测试通过，状态为 Success。"
+            currentBuild.result = 'SUCCESS'
           }
         }
       }
