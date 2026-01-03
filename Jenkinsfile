@@ -65,6 +65,7 @@ pipeline {
         script {
           // Execute tests and generate HTML report with all static assets embedded
           // Use --self-contained-html to embed CSS/JS into the HTML file
+          def webContainer = sh(script: "docker compose -f ci/docker-compose.yml ps -q web", returnStdout: true).trim()
           def exitCode = sh(script: 'docker compose -f ci/docker-compose.yml exec -T web pytest --cov=hrms/apps --cov-report=xml:coverage.xml --cov-report=html:htmlcov --junitxml=test-results.xml --html=report.html --self-contained-html -c pytest.ini', returnStatus: true)
           
           sh "docker cp ${webContainer}:/app/test-results.xml ."
