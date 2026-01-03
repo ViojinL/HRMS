@@ -459,7 +459,7 @@ def seed_leave_2024(people: dict):
         (people.get("dev1"), "annual", "Vacation", _dt(2024, 2, 1, 9), _dt(2024, 2, 2, 18), Decimal("2.0")),
         
         # 中等分组 (70-80)
-        (people.get("sales2"), "personal", "Personal affairs", _dt(2024, 3, 1, 9), _dt(2024, 4, 1, 18), Decimal("22.0")),
+        (people.get("sales_mgr"), "personal", "Personal affairs", _dt(2024, 3, 1, 9), _dt(2024, 4, 1, 18), Decimal("22.0")),
         (people.get("dev2"), "sick", "Medical leave", _dt(2024, 5, 10, 9), _dt(2024, 5, 30, 18), Decimal("15.0")),
         
         # 低分组 (40-60)
@@ -472,6 +472,8 @@ def seed_leave_2024(people: dict):
 
     created = 0
     for emp, leave_type, reason, start_dt, end_dt, days in cases:
+        if not emp:
+            continue
         leave = LeaveApply.objects.create(
             emp=emp,
             leave_type=leave_type,
