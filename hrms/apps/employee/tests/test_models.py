@@ -20,6 +20,7 @@ class EmployeeModelTests(TestCase):
         )
 
     def test_create_employee_and_str(self) -> None:
+        print("\n[模型验证] 验证员工档案创建及字符串标识格式...")
         emp = Employee.objects.create(
             emp_id="E001",
             id_card="123456789012345678",
@@ -36,5 +37,9 @@ class EmployeeModelTests(TestCase):
             create_by="tests",
             update_by="tests",
         )
+        print(f"[数据录入] 员工姓名: {emp.emp_name}, 工号: {emp.emp_id}")
         self.assertEqual(emp.emp_name, "John Doe")
+        
+        print(f"[格式化验证] 期望格式: 'John Doe (E001)' -> 实际输出: '{str(emp)}'")
         self.assertEqual(str(emp), "John Doe (E001)")
+        print("[校验通过] 员工档案模型及展示逻辑正常。")

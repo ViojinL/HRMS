@@ -37,6 +37,7 @@ class LeaveModelTests(TestCase):
         )
 
     def test_leave_apply_str_and_defaults(self) -> None:
+        print("\n[业务验证] 验证请假申请的默认状态与标识格式...")
         leave = LeaveApply.objects.create(
             emp=self.emp,
             leave_type="annual",
@@ -45,10 +46,13 @@ class LeaveModelTests(TestCase):
             create_by="tests",
             update_by="tests",
         )
+        print(f"[申请创建] 员工: {self.emp.emp_name}, 类型: {leave.get_leave_type_display()}")
         self.assertEqual(str(leave), "请假员工 - 年假")
         self.assertEqual(leave.apply_status, "reviewing")
+        print(f"[校验通过] 默认审批状态: {leave.get_apply_status_display()}")
 
     def test_leave_segments_attach_and_sum(self) -> None:
+        print("\n[模型验证] 验证请假申请与时间段的关联性...")
         leave = LeaveApply.objects.create(
             emp=self.emp,
             leave_type="sick",
@@ -66,5 +70,7 @@ class LeaveModelTests(TestCase):
             create_by="tests",
             update_by="tests",
         )
+        print(f"[明细录入] 为申请 ID {leave.id} 添加了 8 小时的时间段明细")
         self.assertEqual(leave.segments.count(), 1)
         self.assertEqual(str(leave.segments.first().id), str(segment.id))
+        print("[校验通过] 时间段正确挂载至请假主表。")

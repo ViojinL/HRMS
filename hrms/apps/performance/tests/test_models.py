@@ -65,20 +65,29 @@ class PerformanceEvaluationModelTests(TestCase):
         )
 
     def test_compute_rule_score_normal(self) -> None:
+        print("\n[算法验证] 验证常规数值下的绩效加权得分...")
+        print(f"[配置] 权重分配: 出勤 {self.cycle.attendance_weight}%, 请假 {self.cycle.leave_weight}%")
         evaluation = self._create_evaluation(
             attendance_rate=Decimal("0.95"), leave_rate=Decimal("0.03")
         )
         score = evaluation.compute_rule_score()
+        print(f"[核算结果] 输入: 出勤0.95/请假0.03 -> 计算得分: {score}")
         self.assertIsNotNone(score)
         self.assertEqual(score.quantize(Decimal("0.01")), Decimal("95.80"))
+        print("[校验通过] 绩效主路径核算精度符合预期。")
 
     def test_compute_rule_score_missing_rates(self) -> None:
+        print("\n[容错验证] 验证基础数据缺失时的逻辑安全性...")
         evaluation = self._create_evaluation(
             attendance_rate=None, leave_rate=Decimal("0.02")
         )
-        self.assertIsNone(evaluation.compute_rule_score())
+        print(f"[数据状态] attendance_rate: {evaluation.attendance_rate}, leave_rate: {evaluation.leave_rate}")
+        score = evaluation.compute_rule_score()
+        self.assertIsNone(score)
+        print("[校验通过] 缺失核心数据时方法返回 None，有效防止了计算逻辑崩溃。")
 
     def test_compute_rule_score_zero_weight(self) -> None:
+        print("\n[边界验证] 验证全零权重配置下的系统反应...")
         zero_cycle = PerformanceCycle.objects.create(
             cycle_name="空权重周期",
             cycle_type="monthly",
@@ -94,11 +103,17 @@ class PerformanceEvaluationModelTests(TestCase):
             leave_rate=Decimal("0.10"),
             cycle=zero_cycle,
         )
+        print(f"[周期配置] 出勤占比: {zero_cycle.attendance_weight}, 请假占比: {zero_cycle.leave_weight}")
         self.assertIsNone(evaluation.compute_rule_score())
+        print("[校验通过] 面对非法权重配置，系统成功返回空值保护。")
 
     def test_percentage_properties_rounding(self) -> None:
+        print("\n[格式化验证] 验证模型属性的百分比换算与舍入...")
         evaluation = self._create_evaluation(
             attendance_rate=Decimal("0.9234"), leave_rate=Decimal("0.056778")
         )
+        print(f"[原始值] 出勤: 0.9234, 请假: 0.056778")
+        print(f"[期望展示] 出勤: 92.34%, 请假: 5.68%")
         self.assertEqual(evaluation.attendance_rate_percent, Decimal("92.34"))
         self.assertEqual(evaluation.leave_rate_percent, Decimal("5.68"))
+        print("[校验通过] 百分比换算结果符合精度要求。")

@@ -34,6 +34,7 @@ class OrganizationModelTests(TestCase):
         )
 
     def test_str_and_parent_relationship(self) -> None:
+        print("\n[结构验证] 验证组织架构的父子关联与展示逻辑...")
         child = Organization.objects.create(
             org_code="ORG-CHILD",
             org_name="子组织",
@@ -45,6 +46,8 @@ class OrganizationModelTests(TestCase):
             create_by="tests",
             update_by="tests",
         )
+        print(f"[数据层级] 子组织: {child.org_name} -> 预设上级: {self.parent.org_name}")
         self.assertEqual(str(child), "子组织 (ORG-CHILD)")
         self.assertEqual(child.parent_org, self.parent)
         self.assertEqual(child.manager_emp, self.manager)
+        print("[校验通过] 组织层级关联及负责人绑定逻辑准确。")

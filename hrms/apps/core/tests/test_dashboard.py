@@ -44,33 +44,44 @@ class DashboardViewTests(TestCase):
         )
 
     def test_anonymous_redirects_to_login(self) -> None:
+        print("\n[安全审计] 验证匿名用户访问受保护页面的行为...")
         response = self.client.get(self.dashboard_url)
+        print(f"[响应状态] HTTP {response.status_code}, 跳转至: {response.url}")
         self.assertEqual(response.status_code, 302)
         self.assertIn(reverse("login"), response.url)
+        print("[校验通过] 匿名访问已成功拦截并引导至登录页。")
 
     def test_superuser_sees_admin_dashboard(self) -> None:
+        print("\n[看板验证] 验证管理员权限下的全量统计指标...")
         admin_user = User.objects.create_superuser(
             username="admin", email="admin@example.com", password="Password123!"
         )
         self.client.force_login(admin_user)
+        print(f"[会话角色] 超级管理员(Admin)")
 
         response = self.client.get(self.dashboard_url)
         self.assertEqual(response.status_code, 200)
+        print(f"[上下文验证] 包含统计字段: {list(response.context.keys())}")
         self.assertTrue(response.context["is_admin_dashboard"])
         self.assertIn("total_employees", response.context)
         self.assertIn("total_orgs", response.context)
         self.assertIn("active_users", response.context)
+        print("[校验通过] 管理员成功查看到全局概览看板。")
 
     def test_employee_dashboard_shows_user_display_name(self) -> None:
+        print("\n[看板验证] 验证普通员工权限下的个人业务看板...")
         user = User.objects.create_user(
             username="bob", email="bob@example.com", password="Password123!"
         )
         org = self._create_org()
         employee = self._create_employee(user=user, org=org)
         self.client.force_login(user)
+        print(f"[会话角色] 普通员工: {employee.emp_name}")
 
         response = self.client.get(self.dashboard_url)
         self.assertEqual(response.status_code, 200)
+        print(f"[UI 渲染验证] 用户显示名称: {response.context['user_display_name']}")
         self.assertEqual(response.context["user_display_name"], employee.emp_name)
         self.assertIn("recent_leaves", response.context)
         self.assertIn("pending_approvals_count", response.context)
+        print("[校验通过] 个人看板正确渲染了关联的请假与审批数据。")
