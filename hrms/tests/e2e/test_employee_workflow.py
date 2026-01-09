@@ -48,7 +48,7 @@ def test_employee_creation_and_lifecycle(live_server, page):
     page.locator("button[type='submit']").click()
     
     # Ensure login success (check for dashboard or nav)
-    expect(page.locator("text=注销")).to_be_visible()
+    expect(page.locator("text=退出登录")).to_be_visible()
 
     # --- Create Employee ---
     # Navigate to Employee Add Page

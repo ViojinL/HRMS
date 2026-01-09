@@ -37,6 +37,7 @@ def test_leave_application_and_approval_flow(live_server, page):
         email="manager@test.com",
         phone="13900000001",
         hire_date=timezone.now().date(),
+        birth_date="1980-01-01",
         emp_status="active"
     )
     
@@ -54,6 +55,7 @@ def test_leave_application_and_approval_flow(live_server, page):
         email="sub@test.com",
         phone="13900000002",
         hire_date=timezone.now().date(),
+        birth_date="1995-01-01",
         emp_status="active"
     )
     

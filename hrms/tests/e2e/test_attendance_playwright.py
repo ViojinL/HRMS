@@ -36,6 +36,7 @@ def test_attendance_check_in_flow(live_server, page):
         email="att@test.com",
         phone="13900000003",
         hire_date=timezone.now().date(),
+        birth_date="1990-01-01",
         emp_status="active"
     )
 
