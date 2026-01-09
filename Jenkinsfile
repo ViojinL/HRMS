@@ -32,6 +32,7 @@ pipeline {
            sh "docker cp . ${webContainer}:/app"
          }
          sh 'docker compose -f ci/docker-compose.yml exec -T web pip install -r requirements.txt'
+         sh 'docker compose -f ci/docker-compose.yml exec -T web python -m playwright install --with-deps chromium'
       }
     }
     stage('Migrate & SQL scripts') {
@@ -67,14 +68,19 @@ pipeline {
           // Use --self-contained-html to embed CSS/JS into the HTML file
           def webContainer = sh(script: "docker compose -f ci/docker-compose.yml ps -q web", returnStdout: true).trim()
           def exitCode = sh(script: 'docker compose -f ci/docker-compose.yml exec -T web pytest --cov=hrms/apps --cov-report=xml:coverage.xml --cov-report=html:htmlcov --junitxml=test-results.xml --html=report.html --self-contained-html -c pytest.ini', returnStatus: true)
+          def e2eExitCode = sh(script: 'docker compose -f ci/docker-compose.yml exec -T web env PLAYWRIGHT_HEADLESS=true PLAYWRIGHT_SLOW_MO=0 pytest -m e2e --e2e --junitxml=e2e-results.xml --html=e2e-report.html --self-contained-html -c pytest.ini', returnStatus: true)
           
           sh "docker cp ${webContainer}:/app/test-results.xml ."
           sh "docker cp ${webContainer}:/app/report.html ."
           sh "docker cp ${webContainer}:/app/coverage.xml ."
           sh "docker cp ${webContainer}:/app/htmlcov ."
+          sh "docker cp ${webContainer}:/app/e2e-results.xml ."
+          sh "docker cp ${webContainer}:/app/e2e-report.html ."
           
           junit 'test-results.xml'
+          junit 'e2e-results.xml'
           archiveArtifacts artifacts: 'report.html,coverage.xml,htmlcov/**', allowEmptyArchive: true
+          archiveArtifacts artifacts: 'e2e-report.html', allowEmptyArchive: true
 
           // 使用 try-catch 保护 publishHTML，防止插件缺失导致流水线变黄
           try {
@@ -96,11 +102,20 @@ pipeline {
                 reportName: 'Code Coverage Report',
                 reportTitles: 'HRMS Coverage Details'
             ])
+            publishHTML([
+                allowMissing: false,
+                alwaysLinkToLastBuild: true,
+                keepAll: true,
+                reportDir: '.',
+                reportFiles: 'e2e-report.html',
+                reportName: 'E2E Test Report',
+                reportTitles: 'HRMS E2E Details'
+            ])
           } catch (Throwable e) {
             echo "Notice: High-level visual reports unavailable (HTML Publisher plugin may be missing). Please check 'Build Artifacts' for HTML files."
           }
 
-          if (exitCode != 0) {
+          if (exitCode != 0 || e2eExitCode != 0) {
             echo "Warning: Some tests failed!"
             currentBuild.result = 'UNSTABLE'
           } else {

@@ -4,6 +4,13 @@
 
 每次重新创建数据库或运行迁移后，请执行 `python hrms/init_data.py` 以恢复组织结构、员工账号和关键业务数据（账号统一是 `password123`），确保后续交互/审批流程可以在本地快速验证。可以把这条命令写入本地脚本或 CI 任务，在 `migrate` 之后自动调用。
 
+## Playwright E2E
+
+- 安装依赖：`pip install -r requirements.txt`
+- 安装浏览器：`python -m playwright install`
+- 运行用例：`pytest -m e2e --e2e`
+- 可视化执行：`$env:PLAYWRIGHT_HEADLESS="false"; pytest -m e2e --e2e`
+
 ## 生产部署
 
 - **仓库地址**：`https://github.com/ViojinL/HRMS.git`，在 GitHub 上启用 Jenkins webhook，让每次 `main` 分支的提交触发流水线。CI 阶段运行 `python -m black --check .`、`python -m ruff check hrms/apps hrms/utils` 以及 `python hrms/manage.py test hrms/apps/performance`。
