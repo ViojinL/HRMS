@@ -89,14 +89,15 @@ def test_employee_creation_and_lifecycle(live_server, page):
     submit_btn.click()
     
     # --- Verify Creation ---
-    # Should redirect to list
-    expect(page).to_have_url(f"{live_server.url}/employee/")
+    # HR onboarding redirects back to itself with success message
+    page.wait_for_load_state("networkidle")
     
-    # Check if name appears in list
-    expect(page.locator("text=Playwright Tester")).to_be_visible()
-    expect(page.locator(f"text={org.org_name}")).to_be_visible()
-
-    # --- Edit Employee ---
+    # Check for success indicator or newly created employee in recent list
+    # The page shows "last_credentials" after successful creation
+    expect(page.locator("text=上一次创建的账户")).to_be_visible(timeout=10000)
+    
+    # Navigate to employee list to verify
+    page.goto(f"{live_server.url}/employee/")
     # Click "Edit" link for this user.
     # We find the row containing the text, then find the Edit button/link.
     # Assuming standard table structure: Row -> Cell -> Edit Link

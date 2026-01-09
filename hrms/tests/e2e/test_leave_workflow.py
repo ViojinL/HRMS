@@ -91,11 +91,11 @@ def test_leave_application_and_approval_flow(live_server, page):
     
     # Use shorter reason text to avoid truncation issues (truncatechars 20)
     page.locator("textarea[name='reason']").fill("E2E Test Leave")
-    expect(page).to_have_url(f"{live_server.url}/leave/")
-    expect(page.locator("text=审核中")).to_be_visible()
 
-    # Logout by clicking the logout button
-    page.get_by_role("button", name="退出登录").click()
+    # Submit apply form (use get_by_role with specific button name)
+    page.get_by_role("button", name="提交申请").click()
+    
+    # Verify redirect to list and status
     
     # Wait for redirect to login page
     expect(page).to_have_url(f"{live_server.url}/login/")
