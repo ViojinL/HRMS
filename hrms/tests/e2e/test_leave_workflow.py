@@ -32,13 +32,17 @@ def test_leave_application_and_approval_flow(live_server, page):
     manager = Employee.objects.create(
         emp_id="MGR001",
         emp_name="Manager Alice",
+        id_card="IDMGR001",
+        gender="female",
         org=org,
         user=manager_user,
         email="manager@test.com",
         phone="13900000001",
         hire_date=timezone.now().date(),
         birth_date="1980-01-01",
-        emp_status="active"
+        emp_status="active",
+        position="Manager",
+        employment_type="full_time",
     )
     
     # Create Subordinate User & Employee
@@ -48,6 +52,8 @@ def test_leave_application_and_approval_flow(live_server, page):
     subordinate = Employee.objects.create(
         emp_id="SUB001",
         emp_name="Sub Bob",
+        id_card="IDSUB001",
+        gender="male",
         org=org,
         manager_emp=manager,  # Correct field for manager assignment
         user=sub_user,
@@ -55,7 +61,9 @@ def test_leave_application_and_approval_flow(live_server, page):
         phone="13900000002",
         hire_date=timezone.now().date(),
         birth_date="1995-01-01",
-        emp_status="active"
+        emp_status="active",
+        position="Engineer",
+        employment_type="full_time",
     )
     
     # --- Subordinate Applies ---

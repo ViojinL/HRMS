@@ -31,13 +31,17 @@ def test_attendance_check_in_flow(live_server, page):
     emp = Employee.objects.create(
         emp_id="ATT001",
         emp_name="CheckIn Tester",
+        id_card="IDATT001",
+        gender="male",
         org=org,
         user=user,
         email="att@test.com",
         phone="13900000003",
         hire_date=timezone.now().date(),
         birth_date="1990-01-01",
-        emp_status="active"
+        emp_status="active",
+        position="QA Engineer",
+        employment_type="full_time",
     )
 
     # --- Login ---
@@ -64,10 +68,8 @@ def test_attendance_check_in_flow(live_server, page):
     # Should stay on dashboard or redirect to it
     expect(page).to_have_url(f"{live_server.url}/attendance/")
     
-    # Check for success message "签到成功" or "早安"
-    # Django messages usually appear in a specific div.
-    # We can search for text on page.
-    expect(page.locator("text=签到成功")).to_be_visible()
+    # Verify the button label switches to the next action (下班打卡) indicating check-in succeeded
+    expect(page.get_by_role("button", name="下班打卡")).to_be_visible()
     
     # Verify button text might have changed to "下班打卡" or "更新打卡" depending on logic/time
     # Since it's same day, logic says:

@@ -45,7 +45,8 @@ def test_employee_creation_and_lifecycle(live_server, page):
     page.goto(f"{live_server.url}/login/")
     page.locator("input#username").fill("admin_e2e")
     page.locator("input#password").fill("AdminPassword123!")
-    page.locator("button[type='submit']").click()
+    # Submit add form (button text is "确认入职")
+    page.get_by_role("button", name="确认入职").click()
     
     # Ensure login success (check for dashboard or nav)
     expect(page.locator("text=退出登录")).to_be_visible()
@@ -77,7 +78,8 @@ def test_employee_creation_and_lifecycle(live_server, page):
     page.locator("select[name='emp_status']").select_option("probation")
 
     # Submit
-    page.locator("button[type='submit']").click()
+    # Save edit (button text is "保存修改")
+    page.get_by_role("button", name="保存修改").click()
     
     # --- Verify Creation ---
     # Should redirect to list

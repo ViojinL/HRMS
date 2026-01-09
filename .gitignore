@@ -54,6 +54,7 @@ ssh-key*
 *.pdf
 
 # Markdown files (Only README.md is allowed)
+e2e-report*.html
 *.md
 !README.md
 
