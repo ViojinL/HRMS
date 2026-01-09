@@ -53,9 +53,9 @@ def test_attendance_check_in_flow(live_server, page):
     expect(page.locator("#clock")).to_be_visible()
     
     # Verify "上班打卡" (Check In) button exists
-    # The text changes based on status, initial state is "上班打卡"
-    check_in_btn = page.locator("button[type='submit']")
-    expect(check_in_btn).to_contain_text("上班打卡")
+    # Use get_by_role for better accessibility testing and uniqueness
+    check_in_btn = page.get_by_role("button", name="上班打卡")
+    expect(check_in_btn).to_be_visible()
     
     # Click Check In
     check_in_btn.click()

@@ -49,8 +49,7 @@ def test_leave_application_and_approval_flow(live_server, page):
         emp_id="SUB001",
         emp_name="Sub Bob",
         org=org,
-        report_to=manager,      # Assuming report_to is the field for hierarchy
-        manager_emp=manager,    # Or manager_emp, checking model def is best but assuming manager_emp based on views
+        manager_emp=manager,  # Correct field for manager assignment
         user=sub_user,
         email="sub@test.com",
         phone="13900000002",
