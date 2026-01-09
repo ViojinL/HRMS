@@ -79,8 +79,13 @@ def test_employee_creation_and_lifecycle(live_server, page):
     # Select Status
     page.locator("select[name='emp_status']").select_option("probation")
 
+    # Debug: Take screenshot to see what's on the page
+    page.screenshot(path="debug_before_submit.png")
+    print(f"\n📸 Page content before submit: {page.content()[:500]}")
+
     # Submit create form (button text shows "确认入职")
-    submit_btn = page.get_by_role("button", name="确认入职")
+    # Use text= selector as fallback if role doesn't work
+    submit_btn = page.locator("button:has-text('确认入职')")
     expect(submit_btn).to_be_visible()
     submit_btn.click()
     

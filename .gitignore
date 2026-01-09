@@ -53,6 +53,12 @@ ssh-key*
 *.pptx
 *.pdf
 
+# Playwright test artifacts
+test-results/
+playwright-report/
+*.webm
+traces/
+
 # Markdown files (Only README.md is allowed)
 e2e-report*.html
 *.md

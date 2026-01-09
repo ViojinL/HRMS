@@ -110,8 +110,11 @@ def test_leave_application_and_approval_flow(live_server, page):
     
     # Go to Approvals
     page.goto(f"{live_server.url}/leave/approvals/")
-    
-    # Should see the request from Sub Bob
+    page.wait_for_load_state("networkidle")
+
+    # Debug: Take screenshot and log page content
+    page.screenshot(path="debug_approval_list.png")
+    print(f"\n📸 Approval page content: {page.content()[:1000]}")
     expect(page.locator("text=Sub Bob")).to_be_visible()
     expect(page.locator("text=Need rest")).to_be_visible()
     
