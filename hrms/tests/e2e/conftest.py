@@ -2,6 +2,9 @@ import os
 
 import pytest
 
+# Allow synchronous DB operations in async contexts (Playwright threads)
+os.environ["DJANGO_ALLOW_ASYNC_UNSAFE"] = "true"
+
 
 @pytest.fixture(scope="session")
 def browser_type_launch_args():
