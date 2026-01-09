@@ -52,9 +52,10 @@ def test_employee_creation_and_lifecycle(live_server, page):
     expect(page.locator("text=退出登录")).to_be_visible()
 
     # --- Create Employee ---
-    # Navigate to Employee Add Page
-    page.goto(f"{live_server.url}/employee/add/")
-    
+    # Navigate to HR Onboarding Page (includes all required fields like birth_date)
+    page.goto(f"{live_server.url}/employee/hr/onboarding/")
+    page.wait_for_load_state("networkidle")
+
     # Monitor for console errors just in case
     page.on("console", lambda msg: print(f"PAGE LOG: {msg.text}"))
 
@@ -64,6 +65,7 @@ def test_employee_creation_and_lifecycle(live_server, page):
     page.locator("input[name='id_card']").fill("110101199001011234")
     page.locator("input[name='phone']").fill("13812345678")
     page.locator("input[name='email']").fill("tester@example.com")
+    page.locator("input[name='birth_date']").fill("1990-01-01")
     
     # Select Org (It's a select element)
     page.locator("select[name='org']").select_option(str(org.id))
@@ -78,7 +80,9 @@ def test_employee_creation_and_lifecycle(live_server, page):
     page.locator("select[name='emp_status']").select_option("probation")
 
     # Submit create form (button text shows "确认入职")
-    page.get_by_role("button", name="确认入职").click()
+    submit_btn = page.get_by_role("button", name="确认入职")
+    expect(submit_btn).to_be_visible()
+    submit_btn.click()
     
     # --- Verify Creation ---
     # Should redirect to list

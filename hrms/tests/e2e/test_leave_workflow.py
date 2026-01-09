@@ -95,13 +95,15 @@ def test_leave_application_and_approval_flow(live_server, page):
     page.get_by_role("button", name="提交申请").click()
     expect(page).to_have_url(f"{live_server.url}/leave/")
     expect(page.locator("text=审核中")).to_be_visible()
+
+    # Logout by clicking the logout button
+    page.get_by_role("button", name="退出登录").click()
     
-    # Logout
-    page.goto(f"{live_server.url}/logout/")
+    # Wait for redirect to login page
+    expect(page).to_have_url(f"{live_server.url}/login/")
 
     # --- Manager Approves ---
     # Login as Manager
-    page.goto(f"{live_server.url}/login/")
     page.locator("input#username").fill("manager01")
     page.locator("input#password").fill("Password123!")
     page.locator("button[type='submit']").click()
