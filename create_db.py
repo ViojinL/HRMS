@@ -1,3 +1,4 @@
+import os
 import psycopg2
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 
@@ -6,25 +7,26 @@ def create_database():
     try:
         # Connect to default 'postgres' database
         conn = psycopg2.connect(
-            dbname="postgres",
-            user="postgres",
-            password="1024linux.Q",
-            host="localhost",
-            port="5432",
+            dbname=os.environ.get("POSTGRES_ADMIN_DB", "postgres"),
+            user=os.environ.get("POSTGRES_USER", "postgres"),
+            password=os.environ.get("POSTGRES_PASSWORD", ""),
+            host=os.environ.get("POSTGRES_HOST", "localhost"),
+            port=os.environ.get("POSTGRES_PORT", "5432"),
         )
         conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
         cur = conn.cursor()
 
         # Check if database exists
-        cur.execute("SELECT 1 FROM pg_database WHERE datname = 'hrms'")
+        db_name = os.environ.get("POSTGRES_DB", "hrms")
+        cur.execute("SELECT 1 FROM pg_database WHERE datname = %s", (db_name,))
         exists = cur.fetchone()
 
         if not exists:
-            print("Creating database 'hrms'...")
-            cur.execute("CREATE DATABASE hrms")
-            print("Database 'hrms' created successfully.")
+            print(f"Creating database '{db_name}'...")
+            cur.execute(f"CREATE DATABASE {db_name}")
+            print(f"Database '{db_name}' created successfully.")
         else:
-            print("Database 'hrms' already exists.")
+            print(f"Database '{db_name}' already exists.")
 
         cur.close()
         conn.close()

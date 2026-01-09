@@ -10,6 +10,8 @@ pipeline {
     DOMAIN_NAME = 'hrms.kohinbox.top'
     PIP_BREAK_SYSTEM_PACKAGES = '1'
     POSTGRES_HOST = 'db'
+    POSTGRES_DB = 'hrms'
+    POSTGRES_USER = 'postgres'
   }
   stages {
     stage('Checkout') {

@@ -4,9 +4,9 @@ services:
     image: postgres:16
     restart: unless-stopped
     environment:
-      POSTGRES_DB: hrms
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 1024linux.Q
+      POSTGRES_DB: ${POSTGRES_DB:-hrms}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
 
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "postgres"]
@@ -23,9 +23,9 @@ services:
     working_dir: /app
     environment:
       - POSTGRES_HOST=db
-      - POSTGRES_DB=hrms
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=1024linux.Q
+      - POSTGRES_DB=${POSTGRES_DB:-hrms}
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     depends_on:
       db:
         condition: service_healthy
