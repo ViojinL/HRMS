@@ -46,7 +46,7 @@ def test_employee_creation_and_lifecycle(live_server, page):
     page.locator("input#username").fill("admin_e2e")
     page.locator("input#password").fill("AdminPassword123!")
     # Submit login
-    page.get_by_role("button", name=("登录", "Login")).click()
+    page.locator("button[type='submit']").click()
     
     # Ensure login success (check for dashboard or nav)
     expect(page.locator("text=退出登录")).to_be_visible()
@@ -78,8 +78,7 @@ def test_employee_creation_and_lifecycle(live_server, page):
     page.locator("select[name='emp_status']").select_option("probation")
 
     # Submit create form (button text shows "确认入职")
-    page.locator("form").get_by_role("button", name=("确认入职", "提交"))
-    page.locator("form").get_by_role("button", name=("确认入职", "提交")).click()
+    page.locator("form button[type='submit']").click()
     
     # --- Verify Creation ---
     # Should redirect to list
@@ -103,7 +102,7 @@ def test_employee_creation_and_lifecycle(live_server, page):
     
     # Change name
     page.locator("input[name='emp_name']").fill("Playwright Updated")
-    page.locator("form").get_by_role("button", name=("保存修改", "提交")).click()
+    page.locator("form button[type='submit']").click()
     
     # Verify update in detail/list page (redirects to detail usually, let's check views.py)
     # View says success_url = reverse_lazy("employee:detail", ...)
