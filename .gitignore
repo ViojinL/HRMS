@@ -46,6 +46,7 @@ ssh-key*
 
 # Document and test files
 *.txt
+!requirements.txt
 *.doc
 *.docx
 *.ppt
