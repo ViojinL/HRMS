@@ -4,7 +4,7 @@ services:
     image: postgres:16
     restart: unless-stopped
     env_file:
-      - ./.env.ci
+      - /srv/hrms/ci/.env.ci
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-hrms}
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
@@ -24,7 +24,7 @@ services:
     image: python:3.11-slim
     working_dir: /app
     env_file:
-      - ./.env.ci
+      - /srv/hrms/ci/.env.ci
     environment:
       - POSTGRES_HOST=db
       - POSTGRES_DB=${POSTGRES_DB:-hrms}
