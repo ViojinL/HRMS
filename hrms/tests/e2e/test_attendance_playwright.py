@@ -82,6 +82,6 @@ def test_attendance_check_in_flow(live_server, page):
     # if afternoon: check_out.
     
     # Let's just verify the record appears in the status area
-    # "上班" label next to time
-    expect(page.locator("text=上班")).to_be_visible()
+    # "上班" label next to time (in the status box, not the button)
+    expect(page.locator(".bg-gray-50").filter(has_text="上班").first).to_be_visible()
     

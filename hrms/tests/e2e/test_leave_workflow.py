@@ -91,10 +91,8 @@ def test_leave_application_and_approval_flow(live_server, page):
     
     page.locator("textarea[name='reason']").fill("Need rest for E2E testing.")
     
-    # Submit apply form (scoped to the leave apply form to avoid hitting logout button)
-    page.locator("form button[type='submit']").click()
-    
-    # Verify redirect to list and "审核中" (Reviewing) status
+    # Submit apply form (use get_by_role with specific button name)
+    page.get_by_role("button", name="提交申请").click()
     expect(page).to_have_url(f"{live_server.url}/leave/")
     expect(page.locator("text=审核中")).to_be_visible()
     

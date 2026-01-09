@@ -78,7 +78,7 @@ def test_employee_creation_and_lifecycle(live_server, page):
     page.locator("select[name='emp_status']").select_option("probation")
 
     # Submit create form (button text shows "确认入职")
-    page.locator("form button[type='submit']").click()
+    page.get_by_role("button", name="确认入职").click()
     
     # --- Verify Creation ---
     # Should redirect to list
@@ -102,7 +102,7 @@ def test_employee_creation_and_lifecycle(live_server, page):
     
     # Change name
     page.locator("input[name='emp_name']").fill("Playwright Updated")
-    page.locator("form button[type='submit']").click()
+    page.get_by_role("button", name="保存修改").click()
     
     # Verify update in detail/list page (redirects to detail usually, let's check views.py)
     # View says success_url = reverse_lazy("employee:detail", ...)
