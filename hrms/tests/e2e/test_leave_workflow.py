@@ -89,10 +89,8 @@ def test_leave_application_and_approval_flow(live_server, page):
     page.locator("input[name='start_time']").fill(start_str)
     page.locator("input[name='end_time']").fill(end_str)
     
-    page.locator("textarea[name='reason']").fill("Need rest for E2E testing.")
-    
-    # Submit apply form (use get_by_role with specific button name)
-    page.get_by_role("button", name="提交申请").click()
+    # Use shorter reason text to avoid truncation issues (truncatechars 20)
+    page.locator("textarea[name='reason']").fill("E2E Test Leave")
     expect(page).to_have_url(f"{live_server.url}/leave/")
     expect(page.locator("text=审核中")).to_be_visible()
 
@@ -115,8 +113,11 @@ def test_leave_application_and_approval_flow(live_server, page):
     # Debug: Take screenshot and log page content
     page.screenshot(path="debug_approval_list.png")
     print(f"\n📸 Approval page content: {page.content()[:1000]}")
+
+    # Should see the request from Sub Bob
     expect(page.locator("text=Sub Bob")).to_be_visible()
-    expect(page.locator("text=Need rest")).to_be_visible()
+    # Check for the reason text (should not be truncated since it's short)
+    expect(page.locator("text=E2E Test")).to_be_visible()
     
     # Click "处理" (Handle)
     row = page.locator("tr", has_text="Sub Bob")

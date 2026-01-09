@@ -83,9 +83,8 @@ def test_employee_creation_and_lifecycle(live_server, page):
     page.screenshot(path="debug_before_submit.png")
     print(f"\n📸 Page content before submit: {page.content()[:500]}")
 
-    # Submit create form (button text shows "确认入职")
-    # Use text= selector as fallback if role doesn't work
-    submit_btn = page.locator("button:has-text('确认入职')")
+    # Submit create form (button text is "保存并创建账号" in HR onboarding)
+    submit_btn = page.get_by_role("button", name="保存并创建账号")
     expect(submit_btn).to_be_visible()
     submit_btn.click()
     
