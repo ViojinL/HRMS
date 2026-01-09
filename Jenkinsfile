@@ -67,10 +67,13 @@ pipeline {
       steps {
         script {
           // Execute tests and generate HTML report with all static assets embedded
-          // Use --self-contained-html to embed CSS/JS into the HTML file
           def webContainer = sh(script: "docker compose -f ci/docker-compose.yml ps -q web", returnStdout: true).trim()
-          def exitCode = sh(script: 'docker compose -f ci/docker-compose.yml exec -T web pytest --cov=hrms/apps --cov-report=xml:coverage.xml --cov-report=html:htmlcov --junitxml=test-results.xml --html=report.html --self-contained-html -c pytest.ini', returnStatus: true)
-          def e2eExitCode = sh(script: 'docker compose -f ci/docker-compose.yml exec -T web env PLAYWRIGHT_HEADLESS=true PLAYWRIGHT_SLOW_MO=0 pytest -m e2e --e2e --junitxml=e2e-results.xml --html=e2e-report.html --self-contained-html -c pytest.ini', returnStatus: true)
+          
+          // 1. Run Unit/Integration tests (ignore e2e folder)
+          def exitCode = sh(script: 'docker compose -f ci/docker-compose.yml exec -T web pytest --ignore=hrms/tests/e2e --cov=hrms/apps --cov-report=xml:coverage.xml --cov-report=html:htmlcov --junitxml=test-results.xml --html=report.html --self-contained-html -c pytest.ini', returnStatus: true)
+          
+          // 2. Run E2E tests specifically
+          def e2eExitCode = sh(script: 'docker compose -f ci/docker-compose.yml exec -T web env PLAYWRIGHT_HEADLESS=true PLAYWRIGHT_SLOW_MO=0 pytest hrms/tests/e2e -m e2e --e2e --junitxml=e2e-results.xml --html=e2e-report.html --self-contained-html -c pytest.ini', returnStatus: true)
           
           sh "docker cp ${webContainer}:/app/test-results.xml ."
           sh "docker cp ${webContainer}:/app/report.html ."
@@ -84,7 +87,6 @@ pipeline {
           archiveArtifacts artifacts: 'report.html,coverage.xml,htmlcov/**', allowEmptyArchive: true
           archiveArtifacts artifacts: 'e2e-report.html', allowEmptyArchive: true
 
-          // 使用 try-catch 保护 publishHTML，防止插件缺失导致流水线变黄
           try {
             publishHTML([
                 allowMissing: false,
@@ -114,7 +116,7 @@ pipeline {
                 reportTitles: 'HRMS E2E Details'
             ])
           } catch (Throwable e) {
-            echo "Notice: High-level visual reports unavailable (HTML Publisher plugin may be missing). Please check 'Build Artifacts' for HTML files."
+            echo "Notice: High-level visual reports unavailable. Check 'Build Artifacts'."
           }
 
           if (exitCode != 0 || e2eExitCode != 0) {

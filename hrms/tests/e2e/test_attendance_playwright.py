@@ -1,11 +1,11 @@
 import pytest
 from django.contrib.auth import get_user_model
 from playwright.sync_api import expect
-from hrms.apps.organization.models import Organization
-from hrms.apps.employee.models import Employee
+from apps.organization.models import Organization
+from apps.employee.models import Employee
 from django.utils import timezone
 
-@pytest.mark.django_db
+@pytest.mark.django_db(transaction=True)
 @pytest.mark.e2e
 def test_attendance_check_in_flow(live_server, page):
     """

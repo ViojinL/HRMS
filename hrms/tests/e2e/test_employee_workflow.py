@@ -1,8 +1,8 @@
 import pytest
 from django.contrib.auth import get_user_model
 from playwright.sync_api import expect
-from hrms.apps.organization.models import Organization
-from hrms.apps.employee.models import Employee
+from apps.organization.models import Organization
+from apps.employee.models import Employee
 
 # Helper function similar to the one in test_login_playwright.py
 def human_type(page, locator, text, delay_ms=50):
@@ -12,7 +12,7 @@ def human_type(page, locator, text, delay_ms=50):
     locator.fill(text) 
     # locator.type(text, delay=delay_ms) # using fill is faster/more robust for functional tests
 
-@pytest.mark.django_db
+@pytest.mark.django_db(transaction=True)
 @pytest.mark.e2e
 def test_employee_creation_and_lifecycle(live_server, page):
     """

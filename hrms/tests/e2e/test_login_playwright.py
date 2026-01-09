@@ -11,7 +11,7 @@ def human_type(page, locator, text, delay_ms=120, pause_ms=60):
         page.wait_for_timeout(pause_ms)
 
 
-@pytest.mark.django_db
+@pytest.mark.django_db(transaction=True)
 @pytest.mark.e2e
 def test_login_flow_human_like(live_server, page):
     user = get_user_model().objects.create_user(
