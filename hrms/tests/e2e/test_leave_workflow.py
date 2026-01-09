@@ -21,7 +21,8 @@ def test_leave_application_and_approval_flow(live_server, page):
     org = Organization.objects.create(
         org_code="TEST_LEAVE",
         org_name="Leave Dept",
-        status="enabled"
+        status="enabled",
+        effective_time=timezone.now().date(),
     )
     
     # Create Manager User & Employee

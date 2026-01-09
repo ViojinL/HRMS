@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model
 from playwright.sync_api import expect
 from apps.organization.models import Organization
 from apps.employee.models import Employee
+from django.utils import timezone
 
 # Helper function similar to the one in test_login_playwright.py
 def human_type(page, locator, text, delay_ms=50):
@@ -36,7 +37,8 @@ def test_employee_creation_and_lifecycle(live_server, page):
     org = Organization.objects.create(
         org_code="TEST_IT",
         org_name="Testing Department",
-        status="enabled"
+        status="enabled",
+        effective_time=timezone.now().date(),
     )
 
     # --- Login ---

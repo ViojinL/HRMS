@@ -20,7 +20,8 @@ def test_attendance_check_in_flow(live_server, page):
     org = Organization.objects.create(
         org_code="TEST_ATT",
         org_name="Attendance Dept",
-        status="enabled"
+        status="enabled",
+        effective_time=timezone.now().date(),
     )
     
     user = get_user_model().objects.create_user(
