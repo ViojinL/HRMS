@@ -1,6 +1,0 @@
-SystemCheckError: System check identified some issues:
-
-ERRORS:
-audit.AuditLog: (auth.E005) The permission codenamed 'view_auditlog' clashes with a builtin permission for model 'audit.AuditLog'.
-
-System check identified 1 issue (0 silenced).

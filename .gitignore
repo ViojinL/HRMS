@@ -43,18 +43,18 @@ deploy_key_new*
 *.pub
 *.key
 ssh-key*
-test.txt
-任务.txt
-功能自动化测试-课设报告撰写模板（含任务书）.docx
-docs/
-image/
-images/
-config/docs/
+
+# Document and test files
+*.txt
 *.doc
 *.docx
 *.ppt
 *.pptx
 *.pdf
-*.txt
+
+# Markdown files (Only README.md is allowed)
+*.md
+!README.md
+
 # CI env file (kept only on VPS)
 ci/.env.ci
