@@ -4,11 +4,8 @@ services:
     image: postgres:16
     restart: unless-stopped
     env_file:
-      - /var/jenkins_home/workspace/HRMS-Pipeline/ci/.env.ci
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB:-hrms}
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      - .env.ci
+    # 移除这里的 environment 节点，因为变量会直接从 .env.ci 加载
 
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "postgres"]
@@ -24,12 +21,9 @@ services:
     image: python:3.11-slim
     working_dir: /app
     env_file:
-      - /var/jenkins_home/workspace/HRMS-Pipeline/ci/.env.ci
+      - .env.ci
     environment:
       - POSTGRES_HOST=db
-      - POSTGRES_DB=${POSTGRES_DB:-hrms}
-      - POSTGRES_USER=${POSTGRES_USER:-postgres}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     depends_on:
       db:
         condition: service_healthy
